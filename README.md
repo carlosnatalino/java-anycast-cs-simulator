@@ -12,7 +12,7 @@ The simulator offers multi-threading for running multiple scenarios using a pool
 
 ### Dependencies:
 
-This code was validated using Java 11. The software has the following dependencies:
+This code was validated using Java 11. The code was developed using [NetBeans](https://netbeans.org/), but by being a gradle project you can use your preferred IDE. The software has the following dependencies:
 
 - Gradle (for dependency and build management)
 - Log4J (for advanced logging features)
