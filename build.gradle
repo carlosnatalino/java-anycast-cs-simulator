@@ -6,6 +6,8 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'application'
 
+version = '0.1.0'
+
 mainClassName = 'simulator.cs.anycast.core.MultiThreadSimulator'
 
 // create a single Jar with all dependencies
@@ -27,13 +29,18 @@ task fatJar(type: Jar) {
 }
 
 repositories {
+    mavenCentral()
     jcenter()
 }
 
 dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.0'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.0'
+    // https://mvnrepository.com/artifact/com.lmax/disruptor required by log4j
+    compile group: 'com.lmax', name: 'disruptor', version: '3.4.2'
     // https://mvnrepository.com/artifact/org.jgrapht/jgrapht
-    compile group: 'org.jgrapht', name: 'jgrapht', version: '0.9.2', ext: 'pom'
+    compile group: 'org.jgrapht', name: 'jgrapht-core', version: '1.3.1'
+    compile group: 'com.typesafe', name: 'config', version: '1.4.0'
+//    compile 'org.jgrapht:jgrapht:0.9.2'
     testCompile 'junit:junit:4.12'
 }
