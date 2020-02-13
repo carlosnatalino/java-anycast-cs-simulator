@@ -7,6 +7,8 @@ import org.apache.logging.log4j.Logger;
 
 /**
  *
+ * Class that enables the thread pooling of simulations.
+ * 
  * @author carlosnatalino
  */
 public class SimulatorThreadFactory implements ThreadFactory {
@@ -27,12 +29,13 @@ public class SimulatorThreadFactory implements ThreadFactory {
     public Thread newThread(Runnable r) {
         SimulatorThread thread = new SimulatorThread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
         
-        
         thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 	    @Override
 	    public void uncaughtException(Thread t, Throwable e) {
 		SimulatorThread thread = (SimulatorThread) t;
-		logger.error("An uncaught exception was thrown in thread " + t.getName() + " from experiment " + thread.getConfiguration().getId() + " at simulation time " + thread.getSimulator().getCurrentTime(), e);
+		logger.error("An uncaught exception was thrown in thread " 
+                        + t.getName() + " from experiment " + thread.getConfiguration().getId() 
+                        + " at simulation time " + thread.getSimulator().getCurrentTime(), e);
 	    }
 	});
         

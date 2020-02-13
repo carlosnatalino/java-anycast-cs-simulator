@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package simulator.cs.anycast.core;
 
 import com.typesafe.config.Config;
@@ -24,11 +19,13 @@ import simulator.cs.anycast.components.Topology;
 
 /**
  *
- * @author carda
+ * Class that concentrates all the operations of read/write from/to files.
+ * 
+ * @author carlosnatalino
  */
 public class FileAgent {
     
-    private static String[] files = new String[]{"dc-stats-", "results-avg-", "results-"};
+    private static String[] files = new String[]{"results-avg-"};
     private static HashMap<String, ArrayList<String>> readFiles;
     private static String configFileName = "config/exp.txt";
     public static DecimalFormat format;
@@ -55,7 +52,7 @@ public class FileAgent {
         }
     }
     
-    public static synchronized Configuration getConfiguration(Config mainConfig) {
+    public static Configuration getConfiguration(Config mainConfig) {
 	Configuration config = new Configuration(mainConfig.getInt("simulation.seed"));
         
         config.setSuffix(mainConfig.getString("simulation.suffix"));
@@ -130,59 +127,6 @@ public class FileAgent {
 	return array;
     }
     
-    private static Object[] parseConfigurationStep(String configuration, Class type) {
-	String parts[] = configuration.split(":");
-	Object[] config = null;
-	if (type == Double.class) {
-//	    Double init = Double.parseDouble(parts[0]);
-//	    Double step = Double.parseDouble(parts[1]);
-//	    Double last = Double.parseDouble(parts[2]);
-            
-            BigDecimal init = new BigDecimal(parts[0]);
-            BigDecimal step = new BigDecimal(parts[1]);
-            BigDecimal last = new BigDecimal(parts[2]);
-            
-            System.out.println(last.subtract(init));
-            System.out.println(last.subtract(init).divide(step));
-	    int diff = last.subtract(init).divide(step).intValueExact();
-	    config = new Double[diff+1];
-            config[0] = init.doubleValue();
-	    for (int i = 1 ; i < config.length ; i++)
-		config[i] = init.add(step.multiply(new BigDecimal(i))).doubleValue();
-//                        init + step * i;
-	} else if (type == Integer.class) {
-	    Integer init = Integer.parseInt(parts[0]);
-	    Integer step = Integer.parseInt(parts[1]);
-	    Integer last = Integer.parseInt(parts[2]);
-	    int diff = new Double((last-init)/step).intValue();
-	    config = new Integer[diff+1];
-            config[0] = init;
-	    for (int i = 1 ; i < config.length ; i++)
-		config[i] = init + step * i;
-	}
-	else return null;
-	
-	return config;
-    }
-    
-    private static Object[] parseConfigurationVector(String configuration, Class type) {
-	String parts[] = configuration.split(",");
-	Object[] config = null;
-	if (type == Double.class)
-	    config = new Double[parts.length];
-	else if (type == Integer.class)
-	    config = new Integer[parts.length];
-	else return null;
-	
-	for (int i = 0 ; i < parts.length ; i++) {
-	    if (type == Double.class)
-		config[i] = new BigDecimal(parts[i]).doubleValue();
-	    else if (type == Integer.class)
-		config[i] = Integer.parseInt(parts[i]);
-	}
-	return config;
-    }
-    
     private static Topology readTopology(String topologyName, Configuration configuration) {
         String path = "resources/topologies/" + topologyName;
         Topology topology = null;
@@ -213,6 +157,7 @@ public class FileAgent {
                 topology.getLinks()[link].setSourceNode(topology.getNodes()[node0]);
                 topology.getLinks()[link].setDestination(node1);
                 topology.getLinks()[link].setDestinationNode(topology.getNodes()[node1]);
+                topology.getLinks()[link].setWeight(1.0);
 
                 topology.getNodes()[node0].getLinks().add(topology.getLinks()[link]);
                 topology.getNodes()[node1].getLinks().add(topology.getLinks()[link]);
@@ -230,8 +175,9 @@ public class FileAgent {
                 topology.getNodes()[i-1].setDatacenter(true);
             }
         }
-        else if (topologyName.endsWith(".xml")) { // SNDlib
-            
+        else if (topologyName.endsWith(".xml")) {
+            //TODO read from SNDlib
+            throw new UnsupportedOperationException("Not supported yet.");
         }
         
         for (Link link : topology.getLinks()) {
@@ -242,23 +188,6 @@ public class FileAgent {
         return topology;
     }
     
-    public static void reportPeriodicStatistics(Configuration configuration, ArrayList<Double> results) {
-	try {
-
-            String text = configuration.getId() + "\t" + configuration.getExperiment();
-            for (Double res : results)
-		text += "\t" + res;
-            text += "\n";
-            
-            Files.write(Paths.get("results-periodic-" + configuration.getSuffix()+ ".csv"), text.getBytes(), StandardOpenOption.APPEND);
-            
-	} catch (Exception ex) {
-	    ex.printStackTrace();
-            throw new IllegalArgumentException("[" + Thread.currentThread().getName() + "] Problem when creating periodic statistics files for the experiment " + configuration.getId());
-	}
-	
-    }
-    
     /**
      * Method to write the results for one single experiment.
      * It uses file lock to prevent multiple writes at the same time
@@ -267,7 +196,7 @@ public class FileAgent {
      */
     public static void reportExperimentStatistics(Configuration configuration, ArrayList<Double> results) {
 	try {
-            Path path = Paths.get("results-" + configuration.getPolicy() + "-" + configuration.getSuffix() + ".csv");
+            Path path = Paths.get(configuration.getBaseFolder() + "results-" + configuration.getPolicy() + "-" + configuration.getSuffix() + ".csv");
             if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS))
                 Files.createFile(path);
             

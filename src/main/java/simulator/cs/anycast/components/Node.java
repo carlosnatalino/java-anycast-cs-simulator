@@ -5,6 +5,11 @@ import simulator.cs.anycast.core.Configuration;
 
 /**
  *
+ * Class that models the nodes in the network. Nodes can be datacenters in the
+ * anycast paradigm considered in this simulation, and therefore have
+ * storage and processing resources. Similar to the links, resources here
+ * are discrete.
+ * 
  * @author carlosnatalino
  */
 public class Node extends AbstractComponent {
@@ -119,6 +124,10 @@ public class Node extends AbstractComponent {
 
     public void setLinks(ArrayList<Link> links) {
         this.links = links;
+    }
+    
+    public double getLoad() {
+        return ((double) usedPUs / (double) PUs) * ((double) usedSUs / (double) SUs);
     }
     // </editor-fold>
 

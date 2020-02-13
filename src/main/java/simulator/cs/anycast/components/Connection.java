@@ -1,10 +1,11 @@
 package simulator.cs.anycast.components;
 
-import java.util.ArrayList;
 import simulator.cs.anycast.core.Configuration;
 
 /**
  *
+ * Class that models a connection request in the network.
+ * 
  * @author carlosnatalino
  */
 public class Connection extends AbstractComponent {
@@ -33,7 +34,14 @@ public class Connection extends AbstractComponent {
 
     // <editor-fold defaultstate="collapsed" desc="getters and setters">
     public int getHopCount() {
+        if (accepted && route == null) {
+            System.err.println("/n/nerror\n\n");
+        }
         return route != null ? route.getHopCount() : 0;
+    }
+    
+    public double getRouteWeight() {
+        return route != null ? route.getWeight(): 0;
     }
     
     public double getHoldingTime() {

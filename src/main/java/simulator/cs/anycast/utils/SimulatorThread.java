@@ -6,7 +6,12 @@ import simulator.cs.anycast.core.StatisticsMonitor;
 
 /**
  *
- * @author User
+ * Class that extends the standard Thread class from Java to include some specific
+ * functionalities useful for the simulation, such as to hold the configuration
+ * to be considered for this particular experiment, as well as a reference to the
+ * statistics object.
+ * 
+ * @author carlosnatalino
  */
 public class SimulatorThread extends Thread {
     

@@ -1,8 +1,6 @@
 package simulator.cs.anycast.core;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.stream.Stream;
@@ -14,33 +12,24 @@ import simulator.cs.anycast.components.Node;
 
 /**
  *
+ * Class responsible for keeping statistics from each simulation run (seed).
+ * At the end of the simulation, it is also responsible for computing and 
+ * consolidating the final statistics.
+ * 
+ * Uses lambda expressions to compute the statistics.
+ * 
  * @author carlosnatalino
  */
 public class StatisticsMonitor {
     
     private final Configuration configuration;
     private ArrayList<ArrayList<Double>> resultVector = new ArrayList<>();
-    private int restorationAttempts = 0, restorationSuccessful = 0, relocations = 0, noIT = 0, noNetwork = 0, reloIT = 0, reloNetwork = 0;
-    double totalAvailability = 0.0, restoredRemainingTime = 0.0;
-    
-    private BigInteger proactiveTriggers, activeConnections, checkedConnections, checkedPaths, vulnerableConnections, movedConnections, linksViolated;
-    
-    // variables for ILPs
-    private BigInteger problemsSolved = BigInteger.ZERO;
-    private BigDecimal solvingTime = BigDecimal.ZERO;
-    
-    private int[][] maxConcurrentRelocations;
-    private int[] histogram, histogram_sum, histogram_max;
     
     private final Logger logger;
 
     public StatisticsMonitor(Configuration configuration) {
 	this.configuration = configuration;
         reset();
-	maxConcurrentRelocations = new int[configuration.getTopology().getNodes().length][configuration.getTopology().getNodes().length];
-	histogram = new int[configuration.getWavelengthsPerFiber()];
-	histogram_sum = new int[configuration.getWavelengthsPerFiber()];
-	histogram_max = new int[configuration.getWavelengthsPerFiber()];
 	logger = LogManager.getLogger("[" + configuration.getId() + "] StatisticsMonitor");
     }
     
@@ -98,37 +87,20 @@ public class StatisticsMonitor {
         }
         
         result.add(duration);
-	
-        result.add(proactiveTriggers.doubleValue());
-        result.add(activeConnections.doubleValue());
-        result.add(checkedConnections.doubleValue());
-        result.add(checkedPaths.doubleValue());
-        result.add(vulnerableConnections.doubleValue());
-        result.add(movedConnections.doubleValue());
-        result.add(linksViolated.doubleValue());
         
-        double restoRemTime = 0.0;
-        if (restorationSuccessful > 0)
-            restoRemTime = restoredRemainingTime / (double) restorationSuccessful;
-        result.add(restoRemTime);
+//        double hopCount = configuration.getSimulator().getConnections().stream()
+//		.filter(s -> s.isAccepted())
+//                .mapToInt(Connection::getHopCount)
+//                .average()
+//                .getAsDouble();
+//	result.add(hopCount);
         
-        double hopCount = configuration.getSimulator().getConnections().stream()
+        double avgWeight = configuration.getSimulator().getConnections().stream()
 		.filter(s -> s.isAccepted())
-                .mapToInt(Connection::getHopCount)
+                .mapToDouble(Connection::getRouteWeight)
                 .average()
                 .getAsDouble();
-	result.add(hopCount);
-	
-	double avgSolvingTime = 0.0;
-	if (problemsSolved.doubleValue() > 0.0)
-	    avgSolvingTime = solvingTime.divide(BigDecimal.valueOf(problemsSolved.longValue()), MathContext.DECIMAL128).doubleValue();
-	result.add(avgSolvingTime);
-	System.out.println("SolvingTime1: " + solvingTime + "\t" + problemsSolved + "\t" + avgSolvingTime);
-	
-	if (restorationAttempts > 0)
-	    avgSolvingTime = solvingTime.divide(BigDecimal.valueOf((double) restorationAttempts), MathContext.DECIMAL128).doubleValue();
-	result.add(avgSolvingTime);
-	System.out.println("SolvingTime2: " + solvingTime + "\t" + restorationAttempts + "\t" + avgSolvingTime);
+	result.add(avgWeight);
         
 	FileAgent.reportExperimentStatistics(configuration, result);
 	resultVector.add(result);
@@ -168,56 +140,14 @@ public class StatisticsMonitor {
             avg = results.get(calculateInterval.get(i)).doubleValue();
             stdDev = stdDev(ciSequences.get(i), avg);
             ciValue = confidenceValue(stdDev, resultVector.size(), 95);
-//                    System.out.print("Confidence interval\tseries: {");
-//                    ciSequences.get(i).forEach(x -> {
-//                        System.out.print(x + ",");
-//                    });
-//                    System.out.print("}\tAvg: " + avg + "\tstdev: " + stdDev + "\tconfid: " + afValue);
-//                    System.out.println("");
             results.add(BigDecimal.valueOf(ciValue));
         }
-	
-	int maxRelo = Integer.MIN_VALUE;
-	for (int i = 0 ; i < maxConcurrentRelocations.length ; i++) {
-	    for (int j = 0 ; j < maxConcurrentRelocations.length ; j++) {
-		maxRelo = Math.max(maxRelo, maxConcurrentRelocations[i][j]);
-	    }
-	}
-	results.add(BigDecimal.valueOf(maxRelo));
         
 	return results;
     }
     
     public void printResults() {
 	FileAgent.reportFinalStatistics(configuration, computeAvgStatistics());
-    }
-    
-    public void reportRestorability(int attempts, int successful, int numRelocations, double totalAvailability, double restoredRemTime, int noIT, int noNetwork, int reloIT, int reloNetwork) {
-	restorationAttempts += attempts;
-        restorationSuccessful += successful;
-        relocations += numRelocations;
-        this.noIT += noIT;
-        this.noNetwork += noNetwork;
-        this.reloIT += reloIT;
-        this.reloNetwork += reloNetwork;
-        this.totalAvailability += totalAvailability;
-        this.restoredRemainingTime += restoredRemTime;
-	
-    }
-    
-    public void reportSolvingTime(double solvingTime) {
-	this.problemsSolved = this.problemsSolved.add(BigInteger.ONE);
-	this.solvingTime = this.solvingTime.add(BigDecimal.valueOf(solvingTime));
-    }
-    
-    public void reportProactiveStats(int active, int checkedConns, int checkedPaths, int vulnerable, int moved, int links) {
-        this.proactiveTriggers = this.proactiveTriggers.add(BigInteger.ONE);
-        this.activeConnections = this.activeConnections.add(BigInteger.valueOf(active));
-        this.checkedConnections = this.checkedConnections.add(BigInteger.valueOf(checkedConns));
-        this.checkedPaths = this.checkedPaths.add(BigInteger.valueOf(checkedPaths));
-        this.vulnerableConnections = this.vulnerableConnections.add(BigInteger.valueOf(vulnerable));
-        this.movedConnections = this.movedConnections.add(BigInteger.valueOf(moved));
-        this.linksViolated = this.linksViolated.add(BigInteger.valueOf(links));
     }
     
     private static double stdDev(ArrayList<Double> values, double mean) {
@@ -241,65 +171,6 @@ public class StatisticsMonitor {
      * Method used to reset the counters between two experiments
      */
     public void reset() {
-        restorationAttempts = restorationSuccessful = relocations = 0;
-        totalAvailability = 0.0;
-        restoredRemainingTime = 0.0;
-        proactiveTriggers = BigInteger.ZERO;
-        activeConnections = BigInteger.ZERO;
-        checkedConnections = BigInteger.ZERO;
-        checkedPaths = BigInteger.ZERO;
-        vulnerableConnections = BigInteger.ZERO;
-        movedConnections = BigInteger.ZERO;
-        linksViolated = BigInteger.ZERO;
-	problemsSolved = BigInteger.ZERO;
-	solvingTime = BigDecimal.ZERO;
-    }
-    
-    public void reportConcurrentRelocations(int[][] current) {
-//	System.out.println("Max Concurrent Relocations:");
-	int sum = 0;
-	int max = 0;
-	for (int i = 0 ; i < maxConcurrentRelocations.length ; i++) {
-	    for (int j = 0 ; j < maxConcurrentRelocations.length ; j++) {
-		if (i != j && configuration.getTopology().getNodes()[i].isDatacenter() && configuration.getTopology().getNodes()[j].isDatacenter()) {
-		    maxConcurrentRelocations[i][j] = Math.max(maxConcurrentRelocations[i][j], current[i][j]);
-		    histogram[current[i][j]]++;
-		    sum += current[i][j];
-		    max = Math.max(max, current[i][j]);
-		}
-	    }
-	}
-	histogram_sum[sum]++;
-	histogram_max[max]++;
-    }
-    
-    public void printHistogram() {
-	String out = "";
-	out += "histogram_" + configuration.getPolicy()+ "_" + configuration.getLoad() + " = [";
-	for (int i = 0 ; i < histogram.length ; i++) {
-	    out += "\t" + histogram[i];
-	}
-	out += "\t];";
-	System.out.println(out);
-	logger.info(out);
-	
-	out = "";
-	out += "histogram_sum_" + configuration.getPolicy()+ "_" + configuration.getLoad() + " = [";
-	for (int i = 0 ; i < histogram_sum.length ; i++) {
-	    out += "\t" + histogram_sum[i];
-	}
-	out += "\t];";
-	System.out.println(out);
-	logger.info(out);
-	
-	out = "";
-	out += "histogram_max_" + configuration.getPolicy()+ "_" + configuration.getLoad() + " = [";
-	for (int i = 0 ; i < histogram_max.length ; i++) {
-	    out += "\t" + histogram_max[i];
-	}
-	out += "\t];";
-	System.out.println(out);
-	logger.info(out);
     }
     
 }

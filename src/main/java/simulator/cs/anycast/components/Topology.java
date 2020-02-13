@@ -1,11 +1,14 @@
 package simulator.cs.anycast.components;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import simulator.cs.anycast.core.Configuration;
 
 /**
  *
+ * Class that models the entire topology, composed of links and nodes. This class
+ * also implements the means to compute the resources at each datacenter
+ * based on their connectivity and the rho parameters from the configuration file.
+ * 
  * @author carlosnatalino
  */
 public class Topology {

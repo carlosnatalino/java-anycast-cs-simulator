@@ -16,13 +16,16 @@ import simulator.cs.anycast.utils.SimulatorThread;
 
 /**
  *
+ * Class that represents one thread that runs a particular scenario of simulation.
+ * All the seeds (runs) of the same scenario are run by the same thread.
+ * 
  * @author carlosnatalino
  */
 public class Simulator implements Callable<Boolean> {
     
     private Configuration configuration;
     private StatisticsMonitor statisticsMonitor;
-    private FibonacciHeap<Event> events;
+    private FibonacciHeap<Event> events; //TODO update the heap
     private List<Connection> connections;
     private List<Connection> activeConnections;
     private double currentTime = 0.0;
@@ -99,7 +102,6 @@ public class Simulator implements Callable<Boolean> {
             logger.debug("Finishing experiment " + experiment);
 	    logger.debug("Start simulation for " + configuration.getBaseName() + "-" + experiment + "-finish");
 	}
-	statisticsMonitor.printHistogram();
 	logger.debug("Finishing simulation for " + configuration.getBaseName()+ " after " + totalDuration + " seconds");
     }
     

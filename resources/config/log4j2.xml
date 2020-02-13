@@ -8,7 +8,7 @@
                 </pattern>
             </PatternLayout>
         </Console>
-        <File name="File-Appender" fileName="log-${sys:logFileName}.log" >
+        <File name="File-Appender" fileName="${sys:logFileName}.log" >
             <PatternLayout>
                 <pattern>
                     [%t] [%-5level] %c{1} - %msg%n
@@ -18,7 +18,10 @@
     </Appenders>
     <Loggers>
         <Root level="debug">
+            <!-- Console appender prints the log to the console, derired for debugging and running in your own computer -->
             <AppenderRef ref="Console-Appender"/>
+            
+            <!-- file appender writes the log to file, appropriate to server -->
             <!--<AppenderRef ref="File-Appender"/>-->
         </Root>
     </Loggers>

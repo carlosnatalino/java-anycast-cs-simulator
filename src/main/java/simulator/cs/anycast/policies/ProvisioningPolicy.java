@@ -1,15 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package simulator.cs.anycast.policies;
 
 import simulator.cs.anycast.components.Connection;
 
 /**
  *
- * @author carda
+ * Abstract class that defines the standard properties and methods that every
+ * class that wants to implement a policy should have. These methods are used
+ * then in the ConnectionManager class through reflection to dynamically
+ * invoke the appropriate policy according to the configuration file.
+ * 
+ * @author carlosnatalino
  */
 public abstract class ProvisioningPolicy {
     

@@ -4,13 +4,17 @@ import java.util.ArrayList;
 
 /**
  *
+ * Class that models a route in the network. It contains the links traversed
+ * by the route, and also provides methods to extract minimum and maximum loads
+ * in the links which are traversed by it.
+ * 
  * @author carlosnatalino
  */
 public class OpticalRoute {
     
-    private int cost = -1;
     private ArrayList<Link> routeLinks;
     private int source = -1, destination = -1;//, cpu = -1;
+    private double weight = 0.0;
     
     public OpticalRoute(int src, int dst) {
 	this.source = src;
@@ -29,8 +33,17 @@ public class OpticalRoute {
         return true;
     }
     
+    public void addLink(Link link) {
+        routeLinks.add(link);
+        weight += link.getWeight();
+    }
+    
     public int getHopCount() {
 	return routeLinks.size();
+    }
+
+    public double getWeight() {
+        return weight;
     }
     
     public double getMeanUtilization() {
@@ -55,20 +68,15 @@ public class OpticalRoute {
         return free;
     }
     
-    public int getCost() {
-        return cost;
-    }
-
-    public void setCost(int cost) {
-        this.cost = cost;
+    public double getLoad() {
+        double load = Integer.MIN_VALUE;
+        for (Link link : routeLinks)
+            load = Math.max(load, link.getLoad());
+        return load;
     }
 
     public ArrayList<Link> getRouteLinks() {
         return routeLinks;
-    }
-
-    public void setRouteLinks(ArrayList<Link> routeLinks) {
-        this.routeLinks = routeLinks;
     }
 
     public int getSource() {
@@ -86,16 +94,6 @@ public class OpticalRoute {
     public void setDestination(int destination) {
         this.destination = destination;
     }
-
-//    public int getCPU() {
-//        return cpu;
-//    }
-//
-//    public void setCPU(int cpu) {
-//        if (destination == 5)
-//            System.out.println("CPU changed from (5, " + this.cpu + " to (" + destination + ", " + cpu + ")");
-//        this.cpu = cpu;
-//    }
 
     @Override
     public String toString() {

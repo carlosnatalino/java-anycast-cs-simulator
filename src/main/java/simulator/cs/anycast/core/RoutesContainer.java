@@ -11,6 +11,9 @@ import simulator.cs.anycast.components.Topology;
 
 /**
  *
+ * Class that manipulates jGraphT library to map the topology to a graph and
+ * compute the shortest paths.
+ * 
  * @author carlosnatalino
  */
 public class RoutesContainer {
@@ -38,26 +41,10 @@ public class RoutesContainer {
         for (Node node : topology.getNodes())
             grapht.addVertex(node);
         
-        for (Link link : topology.getLinks())
+        for (Link link : topology.getLinks()) {
             grapht.addEdge(topology.getNodes()[link.getSource()], topology.getNodes()[link.getDestination()], link);
-        
-//        System.out.println("##################### TOPOLOGY ###########################");
-//        for (Node node : topology.getNodes())
-//            System.out.print("\t" + node.getId());
-//        System.out.println("");
-//        for (Node node1 : topology.getNodes()) {
-//            System.out.print(node1.getId());
-//            for (Node node2 : topology.getNodes())
-//                if (grapht.containsEdge(node2, node1))
-//                    System.out.print("\tX");
-//                else if (node1.getId() == node2.getId())
-//                    System.out.print("\to");
-//            else
-//                    System.out.print("\t-");
-//                    System.out.println("");
-//        }
-//        
-//        System.out.println("end!");
+            grapht.setEdgeWeight(link, 10.);
+        }
         
     }
     
@@ -70,7 +57,6 @@ public class RoutesContainer {
 		    routes[x][y] = computeKSPRoutes(x, y);
 	    }
 	}
-//	System.exit(1);
     }
     
     private OpticalRoute[] computeKSPRoutes(int src, int dst) {
@@ -90,7 +76,7 @@ public class RoutesContainer {
 	    for (Object edge : gp.getEdgeList()) {
 		nSrc = (Node) grapht.getEdgeSource((Link) edge);
 		nDst = (Node) grapht.getEdgeTarget((Link) edge);
-		or.getRouteLinks().add(topology.getLinksVector()[nSrc.getId()][nDst.getId()]);
+		or.addLink(topology.getLinksVector()[nSrc.getId()][nDst.getId()]);
                 
 		temp ++;
 	    }

@@ -2,6 +2,10 @@ package simulator.cs.anycast.events;
 
 /**
  *
+ * Class that models events to be executed by the simulation loop. A particular
+ * active process (event) is associated and will be executed when the simulation
+ * clock reaches the particular event time.
+ * 
  * @author carlosnatalino
  */
 public class Event<E> {

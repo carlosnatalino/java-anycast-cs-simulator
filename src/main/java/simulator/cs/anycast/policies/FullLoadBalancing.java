@@ -7,17 +7,16 @@ import simulator.cs.anycast.utils.SimulatorThread;
 
 /**
  *
- * Class that implements the CADC policy. It chooses the DC with enough resources 
- * available that are reachable through the path with the lowest weight and enough
- * resources available. In other words, it picks the path with lowest weight which
- * reaches a DC with available resources.
+ * Class that implements a policy that considers the load of the path, processing
+ * and storage at the DC. The weight is computed as the multiplication of these 
+ * three loads. Finally, the option with the lowest multiplication factor is chosen.
  * 
  * @author carlosnatalino
  */
-public class ClosestAvailableDC extends ProvisioningPolicy {
+public class FullLoadBalancing extends ProvisioningPolicy {
 
-    public ClosestAvailableDC() {
-        name = "CADC";
+    public FullLoadBalancing() {
+        name = "FLB";
     }
 
     @Override
@@ -25,7 +24,7 @@ public class ClosestAvailableDC extends ProvisioningPolicy {
         Configuration configuration = ((SimulatorThread) Thread.currentThread()).getConfiguration();
 
 	OpticalRoute route = null, selectedRoute = null;
-	double lowestWeight = Double.MAX_VALUE;
+	double lowestLoad = Double.MAX_VALUE, load;
 	for (int node = 0; node < configuration.getTopology().getNodes().length; node++) {
 	    if (configuration.getTopology().getDatacenters()[node]
 		    && configuration.getTopology().getNodes()[node].getFreePUs() >= connection.getRequiredPUs()
@@ -33,12 +32,15 @@ public class ClosestAvailableDC extends ProvisioningPolicy {
 
 		connection.setBlockedByIT(false);
                 
-                route = Algorithms.getShortestAvailablePath(connection, connection.getSource(), node);
+                route = Algorithms.getLeastLoadedPath(connection, connection.getSource(), node);
 		
-		if (route != null && route.getWeight() < lowestWeight) {
-                    connection.setBlockedByNetwork(false);
-		    lowestWeight = route.getWeight();
-		    selectedRoute = route;
+		if (route != null) {
+                    load = route.getLoad() * configuration.getTopology().getNodes()[node].getLoad();
+                    if (load < lowestLoad) {
+                        connection.setBlockedByNetwork(false);
+                        lowestLoad = route.getLoad();
+                        selectedRoute = route;
+                    }
 		}
 	    }
 	}
@@ -46,12 +48,9 @@ public class ClosestAvailableDC extends ProvisioningPolicy {
             connection.setAccepted(true);
             connection.setRoute(selectedRoute);
             Algorithms.assignResources(connection, selectedRoute);
-//            configuration.println("[assignment]  Connection " + connection.getId() + " accepted with route " + route + " and holding time " + connection.getHoldingTime());
         }
         else {
-//            Algorithms.printRouteInformation(connection, -1, null);
             connection.setAccepted(false);
-//            configuration.println("[assignment] Connection " + connection.getId() + " rejected");
         }
         return connection;
     }

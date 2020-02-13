@@ -18,7 +18,10 @@ public class Configuration {
     private Logger logger;
     
     public enum Policy {
-        CLOSEST_AVAILABLE_DC(1);
+        CLOSEST_AVAILABLE_DC(1),
+        LEAST_LOADED_PATH(2),
+        LEAST_LOADED_DC(3),
+        FULL_LOAD_BALANCING(4);
 	private int numVal;
 	private Policy(int numVal) {
 	    this.numVal = numVal;
@@ -27,6 +30,12 @@ public class Configuration {
 	    switch(x) {
 		case 1:
 		    return CLOSEST_AVAILABLE_DC;
+                case 2:
+                    return LEAST_LOADED_PATH;
+                case 3:
+                    return LEAST_LOADED_DC;
+                case 4:
+                    return FULL_LOAD_BALANCING;
                 
 		default:
 		    return null;
@@ -38,6 +47,12 @@ public class Configuration {
         switch (plc) {
             case CLOSEST_AVAILABLE_DC:
                 return "simulator.cs.anycast.policies.ClosestAvailableDC";
+            case LEAST_LOADED_PATH:
+                return "simulator.cs.anycast.policies.LeastLoadedPath";
+            case LEAST_LOADED_DC:
+                return "simulator.cs.anycast.policies.LeastLoadedDC";
+            case FULL_LOAD_BALANCING:
+                return "simulator.cs.anycast.policies.FullLoadBalancing";
                 
             default:
                 return "Error";
@@ -387,14 +402,11 @@ public class Configuration {
     }
     
     public void println(String information) {
-//	System.out.println("[" + Thread.currentThread().getName() + "] [" + FileAgent.timeFormat.format(simulator.getCurrentTime()) + "] [" + id + "] " + information);
         logger.info(information);
     }
     
     public void printerr(String information, Exception e) {
-//        System.err.println("[" + Thread.currentThread().getName() + "] [" + FileAgent.timeFormat.format(simulator.getCurrentTime()) + "] [" + id + "] " + information);
         logger.error(information, e);
-//	System.exit(11);
     }
     
 }

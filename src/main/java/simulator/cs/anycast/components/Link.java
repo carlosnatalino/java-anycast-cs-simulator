@@ -5,21 +5,17 @@ import simulator.cs.anycast.core.Configuration;
 
 /**
  *
+ * Class that models a network link in the network, and its resources. In the 
+ * case of a link in a circuit-switched network, the resources are discrete.
+ * 
  * @author carlosnatalino
  */
 public class Link extends AbstractComponent {
-
-    /**
-     * TODO
-     * 
-     * implement the assignment to a given wavelength
-     * it will also allow for the sharing of wavelengths for backup purposes
-     */
     
     private int source;
     private int destination;
     private Node sourceNode, destinationNode;
-    private int length = 1086;
+    private double weight = 1086;
     private ArrayList<Connection> connections;
     private int free;
     private boolean dcLink = false;
@@ -36,19 +32,13 @@ public class Link extends AbstractComponent {
         if (connection.getLightpaths() <= free) {
             connections.add(connection);
             free --;
-            /**
-             * TODO
-             * manage wavelengths
-             */
             updateUtilization();
-//            getConfiguration().println("Link " + source + " -> " + destination + " (" + free + ") | add " + connection.getId());
         } else {
             throw new IllegalArgumentException("[" + Thread.currentThread().getName() + "] Connection " + connection.getId() + " tried to connect to a full link " + this);
         }
     }
     
     public void removeConnection(Connection connection) {
-//        getConfiguration().println("Link " + source + " -> " + destination + " (" + free + ") | remove " + connection.getId());
         if (connections.contains(connection)) {
             connections.remove(connection);
             free++;
@@ -92,12 +82,12 @@ public class Link extends AbstractComponent {
         this.destinationNode = destinationNode;
     }
 
-    public int getLength() {
-	return length;
+    public double getWeight() {
+	return weight;
     }
 
-    public void setLength(int length) {
-	this.length = length;
+    public void setWeight(double w) {
+	this.weight = w;
     }
 
     public ArrayList<Connection> getConnections() {
@@ -123,6 +113,10 @@ public class Link extends AbstractComponent {
     public void setDCLink(boolean dcLink) {
         this.dcLink = dcLink;
     }
+    
+    public double getLoad() {
+        return (((double) configuration.getWavelengthsPerFiber() - (double) free) / (double) configuration.getWavelengthsPerFiber());
+    }
     // </editor-fold>
 
     private void updateUtilization() {
@@ -131,16 +125,6 @@ public class Link extends AbstractComponent {
         
         if (currentTime > 0) {
             utilization = ((utilization * lastUpdateTime) + ((((double) configuration.getWavelengthsPerFiber() - (double) free) / (double) configuration.getWavelengthsPerFiber()) * timeDiff)) / currentTime;
-//            if (connections.size() + backupConnections.size() > 0) { // to avoid division by zero
-//                double currentTotal = 1 - (((double) configuration.getWavelengthsPerFiber() - (double) free) / (double)(connections.size() + backupConnections.size()));
-//                totalSharingDegree = ((totalSharingDegree * lastUpdateTime) + (currentTotal * timeDiff)) / currentTime;
-//            }
-//            if (backupConnections.size() > 0) {
-//                double currentDegree = ((double) backupConnections.size() / (double) totalBackupWavelengths());
-//                backupSharingDegree = ((backupSharingDegree * lastUpdateTime) + (currentDegree * timeDiff)) / currentTime; 
-//            }
-            
-//            if (id == 5) configuration.println(Double.toString(getBackupSharingDegree()));
         }
         
         lastUpdateTime = currentTime;

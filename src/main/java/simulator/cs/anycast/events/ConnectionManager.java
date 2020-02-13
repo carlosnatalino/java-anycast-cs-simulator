@@ -8,6 +8,10 @@ import simulator.cs.anycast.policies.ProvisioningPolicy;
 
 /**
  *
+ * Class that manages the connections, i.e., it is responsible for generating
+ * randomly the arrivals and selecting source. Then, it processes arrivals
+ * and departures.
+ * 
  * @author carlosnatalino
  */
 public class ConnectionManager extends ActiveProcess {

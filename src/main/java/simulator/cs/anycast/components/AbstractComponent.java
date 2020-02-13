@@ -4,6 +4,9 @@ import simulator.cs.anycast.core.Configuration;
 
 /**
  *
+ * AbstractcClass that defines the functionalities that all the components of the 
+ * network should have.
+ * 
  * @author carlosnatalino
  */
 public abstract class AbstractComponent {

@@ -2,19 +2,16 @@ package simulator.cs.anycast.core;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValue;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,11 +23,18 @@ import simulator.cs.anycast.utils.SimulatorThreadFactory;
 
 /**
  *
- * @author carda
+ * Main class of this project. This class is responsible for:
+ * 1. Load the configuration from the .conf file
+ * 2. Create the folder structure of the simulation
+ * 3. Generate all the simulation scenarios to be executed
+ * 4. Create the thread pool that will execute the scenarios
+ * 5. Consolidate statistics and write final file
+ * 
+ * @author carlosnatalino
  */
 public class MultiThreadSimulator {
     
-    private static final Logger logger;
+    private static Logger logger;
     
     private static String configFile = "resources/config/simulation.conf";
     
@@ -40,8 +44,6 @@ public class MultiThreadSimulator {
         Config mainConfig = ConfigFactory.parseFile(new File(configFile));
         System.setProperty("log4j.configurationFile", "resources/config/log4j2.xml");
         System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
-        System.setProperty("logFileName", mainConfig.getString("simulation.suffix"));
-        logger = LogManager.getLogger(MultiThreadSimulator.class);
     }
 
     /**
@@ -53,7 +55,7 @@ public class MultiThreadSimulator {
         
         if (args.length > 0 && args[0] == "validate-config") {
             //TODO implement the config validation
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            throw new UnsupportedOperationException("Not supported yet.");
         }
         else {
         
@@ -69,7 +71,24 @@ public class MultiThreadSimulator {
                 mainConf.setBaseFolder(mainConf.getBaseFolder() + "/" + dateTime + "/");
                 new File(mainConf.getBaseFolder()).mkdirs();
                 
+                System.setProperty("logFileName", mainConf.getBaseFolder() + mainConfig.getString("simulation.suffix"));
+                logger = LogManager.getLogger(MultiThreadSimulator.class);
+                
                 Files.copy(Path.of(configFile), Path.of(mainConf.getBaseFolder() + "simulation.conf"));
+                
+                dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+                
+                String text = "Date: " + dtf.format(LocalDateTime.now()) + "\n";
+                text += "args (" + args.length + "):";
+                
+                for (String arg : args) {
+                    text += " " + arg;
+                }
+                text += "\n";
+                
+                Path path = Paths.get(mainConf.getBaseFolder() + "0-info.txt");
+            
+                Files.write(path, text.getBytes(), StandardOpenOption.CREATE_NEW);
                 
                 RoutesContainer.init(mainConf); // starting the routing container
                 ExecutorService service = Executors.newFixedThreadPool(mainConf.getNumberThreads(), new SimulatorThreadFactory());
