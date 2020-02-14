@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import simulator.cs.anycast.components.Link;
 import simulator.cs.anycast.components.Topology;
 
+
 /**
  *
  * Class that concentrates all the operations of read/write from/to files.
@@ -26,10 +27,14 @@ import simulator.cs.anycast.components.Topology;
 public class FileAgent {
     
     private static String[] files = new String[]{"results-avg-"};
+    // hash map that saves all the files already loaded by the simulator
+    // to avoid reading the same file multiple times.
     private static HashMap<String, ArrayList<String>> readFiles;
     private static String configFileName = "config/exp.txt";
     public static DecimalFormat format;
     public static DecimalFormat timeFormat;
+    private static final String columnSeparator = ",";
+    private static final String lineSeparator = "\n";
     
     static {
 	format = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
@@ -40,14 +45,39 @@ public class FileAgent {
 	timeFormat.setMaximumFractionDigits(0);
     }
     
-    public static void init(Configuration configuration) {
+    public static void initScenario(Configuration configuration) {
         try {
-            for (String file : files) {
-                Path path = Paths.get(configuration.getBaseFolder() + file + configuration.getSuffix()+ ".csv");
-                if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS))
-                    Files.createFile(path);
-            }
+            
+            String header = "id" + columnSeparator + 
+                            "exp" + columnSeparator + 
+                            "load" + columnSeparator + 
+                            "blocking" + columnSeparator + 
+                            "totHoldTime" + columnSeparator + 
+                            "avgHoldTime" + columnSeparator + 
+                            "avgLinkUtil" + columnSeparator + 
+                            "avgProcUtil" + columnSeparator + 
+                            "avgStoUtil" + columnSeparator + 
+                            "simTime" + columnSeparator + 
+                            "avgHopCount" + columnSeparator + 
+                            "avgPathWeight" + lineSeparator;
+            
+            Path path = Paths.get(configuration.getBaseFolder() + "results-" + configuration.getPolicy() + "-" + configuration.getSuffix() + ".csv");
+            Files.write(path, header.getBytes(), StandardOpenOption.CREATE_NEW);
+            
+//            for (String file : files) {
+//                Path path = Paths.get(configuration.getBaseFolder() + file + configuration.getSuffix()+ ".csv");
+//                if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS))
+//                    Files.createFile(path);
+//                String header = "";
+//                String text = configuration.getId() + columnSeparator + configuration.getExperiment();
+//                for (Double res : results)
+//                    text += columnSeparator + res;
+//                text += lineSeparator;
+//
+//                Files.write(path, text.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+//            }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new IllegalArgumentException("[" + Thread.currentThread().getName() + "] Problem when creating files for the experiment " + configuration.getId());
         }
     }
@@ -197,13 +227,11 @@ public class FileAgent {
     public static void reportExperimentStatistics(Configuration configuration, ArrayList<Double> results) {
 	try {
             Path path = Paths.get(configuration.getBaseFolder() + "results-" + configuration.getPolicy() + "-" + configuration.getSuffix() + ".csv");
-            if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS))
-                Files.createFile(path);
             
-            String text = configuration.getId() + "\t" + configuration.getExperiment();
+            String text = configuration.getId() + columnSeparator + configuration.getExperiment();
             for (Double res : results)
-		text += "\t" + res;
-            text += "\n";
+		text += columnSeparator + res;
+            text += lineSeparator;
             
             Files.write(path, text.getBytes(), StandardOpenOption.APPEND);
             
@@ -225,10 +253,10 @@ public class FileAgent {
             
             String text = configuration.getBaseName();
             for (BigDecimal res : results)
-		text += "\t" + format.format(res);
-            text += "\n";
+		text += columnSeparator + format.format(res);
+            text += lineSeparator;
             
-            Files.write(Paths.get(configuration.getBaseFolder() + "results-avg-" + configuration.getSuffix()+ ".csv"), text.getBytes(), StandardOpenOption.APPEND);
+//            Files.write(Paths.get(configuration.getBaseFolder() + "results-avg-" + configuration.getSuffix()+ ".csv"), text.getBytes(), StandardOpenOption.APPEND);
             
 	} catch (Exception ex) {
 	    ex.printStackTrace();

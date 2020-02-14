@@ -95,20 +95,29 @@ public class MultiThreadSimulator {
                 
                 String baseName;
                 logger.debug("Starting simulation at " + Configuration.getFormatter().format(LocalDateTime.now()));
-                for (int l = 0; l < mainConf.getLoads().length; l++) {
-                    for (int s = 0; s < mainConf.getStrategies().length; s++) {
+                
+                for (int s = 0; s < mainConf.getStrategies().length; s++) {
+                    
+                    Configuration conf = FileAgent.getConfiguration(mainConfig);
+                    conf.setBaseFolder(mainConf.getBaseFolder());
+                    conf.setPolicy(conf.getStrategies()[s]);
+                                
+                    FileAgent.initScenario(conf);
+                        
+                    for (int l = 0; l < mainConf.getLoads().length; l++) {
                         
                         for (int rhoProcessing = 0; rhoProcessing < mainConf.getRhosProcessing().length; rhoProcessing++) {
                             for (int rhoStorage = 0; rhoStorage < mainConf.getRhosStorage().length; rhoStorage++) {
                                 
-                                Configuration conf = FileAgent.getConfiguration(mainConfig);
+                                conf = FileAgent.getConfiguration(mainConfig);
                                 conf.setBaseFolder(mainConf.getBaseFolder());
-                                RoutesContainer.init(conf);
+                                conf.setPolicy(conf.getStrategies()[s]);
                                 
                                 conf.setLoad(conf.getLoads()[l]);
-                                conf.setPolicy(conf.getStrategies()[s]);
                                 conf.setRhoProcessing(mainConf.getRhosProcessing()[rhoProcessing]);
                                 conf.setRhoStorage(mainConf.getRhosStorage()[rhoStorage]);
+                                
+                                RoutesContainer.init(conf);
                                 
                                 baseName = "sim-" + conf.getStrategies()[s] + "-" + conf.getLoads()[l];
                                 

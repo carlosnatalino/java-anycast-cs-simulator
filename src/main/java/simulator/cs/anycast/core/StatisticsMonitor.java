@@ -68,32 +68,27 @@ public class StatisticsMonitor {
         result.add(averageLinkUtilization);
         
         double averagePUUtilization = Stream.of(configuration.getTopology().getNodes())
+                .filter(n -> n.isDatacenter())
                 .mapToDouble(Node::getProcessingUtilization)
                 .average()
                 .getAsDouble();
         result.add(averagePUUtilization);
         
         double averageSUUtilization = Stream.of(configuration.getTopology().getNodes())
+                .filter(n -> n.isDatacenter())
                 .mapToDouble(Node::getStorageUtilization)
                 .average()
                 .getAsDouble();
         result.add(averageSUUtilization);
         
-        // consider the DC nodes only
-        ArrayList<Node> dcList = new ArrayList();
-        for (Node n : configuration.getTopology().getNodes()) {
-            if (n.isDatacenter())
-                dcList.add(n);
-        }
-        
         result.add(duration);
         
-//        double hopCount = configuration.getSimulator().getConnections().stream()
-//		.filter(s -> s.isAccepted())
-//                .mapToInt(Connection::getHopCount)
-//                .average()
-//                .getAsDouble();
-//	result.add(hopCount);
+        double hopCount = configuration.getSimulator().getConnections().stream()
+		.filter(s -> s.isAccepted())
+                .mapToInt(Connection::getHopCount)
+                .average()
+                .getAsDouble();
+	result.add(hopCount);
         
         double avgWeight = configuration.getSimulator().getConnections().stream()
 		.filter(s -> s.isAccepted())

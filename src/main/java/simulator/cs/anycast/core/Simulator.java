@@ -26,8 +26,8 @@ public class Simulator implements Callable<Boolean> {
     private Configuration configuration;
     private StatisticsMonitor statisticsMonitor;
     private FibonacciHeap<Event> events; //TODO update the heap
-    private List<Connection> connections;
-    private List<Connection> activeConnections;
+    private List<Connection> connections; // all connections handled
+    private List<Connection> activeConnections; // only the ones currently active
     private double currentTime = 0.0;
     private double endTime = 0.0;
     private boolean log = false;
@@ -67,12 +67,15 @@ public class Simulator implements Callable<Boolean> {
     }
     
     public void releaseConnection(Connection conn) {
+        if (activeConnections == null || conn == null)
+            System.out.println("resolvendo");
         activeConnections.remove(conn);
     }
     
     public void startSimulation() {
 	double totalDuration = 0.0, duration = 0.0;
 	long seed = configuration.getSeed();
+        
 	for (int experiment = 0 ; experiment < configuration.getExperiments() ; experiment++) {
             LocalDateTime lt = LocalDateTime.now();
             configuration.getTopology().reset();
@@ -86,7 +89,6 @@ public class Simulator implements Callable<Boolean> {
 	    configuration.setExperiment(experiment);
 	    currentTime = 0.0;
 	    ConnectionManager.init();
-            FileAgent.init(configuration);
 	    Event evt;
 	    while (!events.isEmpty()) {
 		evt = getNextEvent();
