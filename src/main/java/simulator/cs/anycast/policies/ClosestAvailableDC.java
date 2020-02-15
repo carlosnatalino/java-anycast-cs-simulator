@@ -1,6 +1,7 @@
 package simulator.cs.anycast.policies;
 
 import simulator.cs.anycast.components.Connection;
+import simulator.cs.anycast.components.Node;
 import simulator.cs.anycast.components.OpticalRoute;
 import simulator.cs.anycast.core.Configuration;
 import simulator.cs.anycast.utils.SimulatorThread;
@@ -26,14 +27,13 @@ public class ClosestAvailableDC extends ProvisioningPolicy {
 
 	OpticalRoute route = null, selectedRoute = null;
 	double lowestWeight = Double.MAX_VALUE;
-	for (int node = 0; node < configuration.getTopology().getNodes().length; node++) {
-	    if (configuration.getTopology().getDatacenters()[node]
-		    && configuration.getTopology().getNodes()[node].getFreePUs() >= connection.getRequiredPUs()
-		    && configuration.getTopology().getNodes()[node].getFreeSUs() >= connection.getRequiredSUs()) {
+	for (Node node : configuration.getTopology().getDatacenters()) {
+	    if (node.getFreePUs() >= connection.getRequiredPUs() &&
+		node.getFreeSUs() >= connection.getRequiredSUs()) {
 
 		connection.setBlockedByIT(false);
                 
-                route = Algorithms.getShortestAvailablePath(connection, connection.getSource(), node);
+                route = Algorithms.getShortestAvailablePath(connection, connection.getSource(), node.getId());
 		
 		if (route != null && route.getWeight() < lowestWeight) {
                     connection.setBlockedByNetwork(false);
@@ -46,12 +46,9 @@ public class ClosestAvailableDC extends ProvisioningPolicy {
             connection.setAccepted(true);
             connection.setRoute(selectedRoute);
             Algorithms.assignResources(connection, selectedRoute);
-//            configuration.println("[assignment]  Connection " + connection.getId() + " accepted with route " + route + " and holding time " + connection.getHoldingTime());
         }
         else {
-//            Algorithms.printRouteInformation(connection, -1, null);
             connection.setAccepted(false);
-//            configuration.println("[assignment] Connection " + connection.getId() + " rejected");
         }
         return connection;
     }

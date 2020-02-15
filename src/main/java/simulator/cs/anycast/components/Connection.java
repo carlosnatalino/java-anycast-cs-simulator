@@ -16,10 +16,7 @@ public class Connection extends AbstractComponent {
     private boolean accepted = false;
     private int requiredPUs = 0, requiredSUs = 0, requiredLPs = 1;
     private int source, destination = -1;
-    private int lightpaths = 0;
     private boolean blockedByNetwork = false, blockedByIT = false;
-//    private int primaryCpu = -1, backupCpu = -1;
-//    private int wavelength;
     
     public Connection(int id, int source, double holdingTime, Configuration configuration) {
 	this.id = id;
@@ -34,14 +31,11 @@ public class Connection extends AbstractComponent {
 
     // <editor-fold defaultstate="collapsed" desc="getters and setters">
     public int getHopCount() {
-        if (accepted && route == null) {
-            System.err.println("/n/nerror\n\n");
-        }
-        return route != null ? route.getHopCount() : 0;
+        return route.getHopCount();
     }
     
     public double getRouteWeight() {
-        return route != null ? route.getWeight(): 0;
+        return route.getWeight();
     }
     
     public double getHoldingTime() {
@@ -122,14 +116,6 @@ public class Connection extends AbstractComponent {
 
     public void setBlockedByIT(boolean blockedByIT) {
         this.blockedByIT = blockedByIT;
-    }
-
-    public int getLightpaths() {
-        return lightpaths;
-    }
-
-    public void setLightpaths(int lightpaths) {
-        this.lightpaths = lightpaths;
     }
     // </editor-fold>
 

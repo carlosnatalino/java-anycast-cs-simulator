@@ -12,6 +12,7 @@ import simulator.cs.anycast.core.Configuration;
 public abstract class AbstractComponent {
     
     protected int id = -1;
+    protected String name;
     protected Configuration configuration;
     protected double lastUpdateTime = 0;
     protected double utilization = 0.0;
@@ -22,6 +23,14 @@ public abstract class AbstractComponent {
 
     public void setId(int id) {
 	this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Configuration getConfiguration() {

@@ -1,6 +1,8 @@
 package simulator.cs.anycast.core;
 
 import com.typesafe.config.Config;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,10 +11,20 @@ import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 import simulator.cs.anycast.components.Link;
 import simulator.cs.anycast.components.Topology;
 
@@ -37,7 +49,7 @@ public class FileAgent {
     
     static {
 	format = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
-	format.setMinimumFractionDigits(3);
+	format.setMinimumFractionDigits(1);
 	format.setMaximumFractionDigits(10);
 	timeFormat = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 //	timeFormat.setMinimumFractionDigits(3);
@@ -84,7 +96,7 @@ public class FileAgent {
         }
     }
     
-    public static Configuration getConfiguration(Config mainConfig) {
+    public static Configuration getConfiguration(Config mainConfig) throws ParserConfigurationException, SAXException, IOException {
 	Configuration config = new Configuration(mainConfig.getInt("simulation.seed"));
         
         config.setSuffix(mainConfig.getString("simulation.suffix"));
@@ -131,6 +143,8 @@ public class FileAgent {
         
         String topologyFile = mainConfig.getString("simulation.topology");
         
+        config.setNumberDatacenters(mainConfig.getInt("simulation.number-dcs"));
+        
         config.setTopologyName(topologyFile.replace(".xml", "").replace(".txt", ""));
         
         Topology topo = readTopology(topologyFile, config);
@@ -159,7 +173,7 @@ public class FileAgent {
 	return array;
     }
     
-    private static Topology readTopology(String topologyName, Configuration configuration) {
+    private static Topology readTopology(String topologyName, Configuration configuration) throws ParserConfigurationException, SAXException, IOException {
         String path = "resources/topologies/" + topologyName;
         Topology topology = null;
         
@@ -168,11 +182,10 @@ public class FileAgent {
             ArrayList<String> lines = readFile(path);
 
             int nNodes = Integer.parseInt(lines.get(0));
-            int[] nodeDegree = new int[nNodes];
             int nLinks = Integer.parseInt(lines.get(1));
             int nDatacenters = Integer.parseInt(lines.get(2));
 
-            topology = new Topology(nNodes, nLinks, nDatacenters, configuration);
+            topology = new Topology(nNodes, nLinks, configuration);
 
     //        System.out.println("nLinks: " + nLinks);
             int node0;
@@ -181,9 +194,6 @@ public class FileAgent {
                 String[] nodes = lines.get(link + 3).split(" ");
                 node0 = Integer.parseInt(nodes[0])-1;
                 node1 = Integer.parseInt(nodes[1])-1;
-
-                nodeDegree[node0]++;
-                nodeDegree[node1]++;
 
                 topology.getLinks()[link].setSource(node0);
                 topology.getLinks()[link].setSourceNode(topology.getNodes()[node0]);
@@ -203,13 +213,61 @@ public class FileAgent {
 
             for (String dc : dcs) {
                 int i = Integer.parseInt(dc);
-                topology.getDatacenters()[i-1] = true;
                 topology.getNodes()[i-1].setDatacenter(true);
+                topology.addDC(topology.getNodes()[i-1]);
             }
+            configuration.setNumberDatacenters(nDatacenters);
         }
         else if (topologyName.endsWith(".xml")) {
             //TODO read from SNDlib
-            throw new UnsupportedOperationException("Not supported yet.");
+            
+            File file = new File(path);
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document doc = db.parse(file);
+            doc.getDocumentElement().normalize();
+
+            NodeList nodeList = doc.getElementsByTagName("node");
+            
+            int nNodes = nodeList.getLength();
+            int[] nodeDegree = new int[nNodes];
+            
+            NodeList linkList = doc.getElementsByTagName("link");
+            
+            int nLinks = linkList.getLength();
+            
+            topology = new Topology(nNodes, nLinks, configuration);
+            
+            // nodeList is not iterable, so we are using for loop
+            for (int itr = 0; itr < nodeList.getLength(); itr++) {
+                Node node = nodeList.item(itr);
+                Element eElement = (Element) node;
+                Element coordinates = (Element) eElement.getElementsByTagName("coordinates").item(0);
+                
+                topology.addNode(itr, node.getAttributes().getNamedItem("id").getNodeValue(),
+                                Double.parseDouble(coordinates.getElementsByTagName("x").item(0).getTextContent()),
+                                Double.parseDouble(coordinates.getElementsByTagName("y").item(0).getTextContent()));
+            }
+            
+            for (int itr = 0; itr < linkList.getLength(); itr++) {
+                Node node = linkList.item(itr);
+                Element eElement = (Element) node;
+                topology.addLink(itr, node.getAttributes().getNamedItem("id").getNodeValue(),
+                        eElement.getElementsByTagName("source").item(0).getTextContent(),
+                        eElement.getElementsByTagName("target").item(0).getTextContent(),
+                        true);
+            }
+            
+            // defining the placement of DCs
+            List dcs = Arrays.asList(topology.getNodes()).stream()
+                    .sorted((n1, n2) -> n2.getDegree().compareTo(n1.getDegree()))
+                    .limit(configuration.getNumberDatacenters())
+                    .collect(Collectors.toList());
+            for (Object o : dcs) {
+                simulator.cs.anycast.components.Node n = (simulator.cs.anycast.components.Node) o;
+                n.setDatacenter(true);
+                topology.addDC(n);
+            }
         }
         
         for (Link link : topology.getLinks()) {
@@ -232,7 +290,7 @@ public class FileAgent {
             
             String text = configuration.getConnectionManager().getPolicyName() + columnSeparator + configuration.getExperiment();
             for (Double res : results)
-		text += columnSeparator + res;
+		text += columnSeparator + format.format(res);
             text += lineSeparator;
             
             Files.write(path, text.getBytes(), StandardOpenOption.APPEND);

@@ -17,6 +17,7 @@ public class Node extends AbstractComponent {
     private boolean datacenter = false;
     private int PUs, usedPUs;
     private int SUs, usedSUs;
+    private double latitude, longitude;
     private ArrayList<Connection> connectionsOnThisDC;
 
     private double processingUtilization = 0.0, storageUtilization = 0.0, 
@@ -29,6 +30,10 @@ public class Node extends AbstractComponent {
         this.id = id;
         this.configuration = configuration;
         reset();
+    }
+    
+    public Integer getDegree() {
+        return links.size();
     }
 
     public void addConnection(Connection connection) {
@@ -124,6 +129,22 @@ public class Node extends AbstractComponent {
 
     public void setLinks(ArrayList<Link> links) {
         this.links = links;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
     
     public double getLoad() {

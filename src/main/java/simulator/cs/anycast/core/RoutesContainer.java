@@ -28,6 +28,7 @@ public class RoutesContainer {
         grapht = new DefaultUndirectedWeightedGraph<>(Link.class);
         buildGraph();
 	computeAllRoutes();
+//        showStats();
     }
     
     public static void init(Configuration configuration) {
@@ -45,7 +46,8 @@ public class RoutesContainer {
             grapht.addEdge(topology.getNodes()[link.getSource()], topology.getNodes()[link.getDestination()], link);
             grapht.setEdgeWeight(link, 10.);
         }
-        
+        topology.setGrapht(grapht);
+//        topology.visualizeGraph(); // not implemented yet
     }
     
     private void computeAllRoutes() {
@@ -104,7 +106,7 @@ public class RoutesContainer {
     public void showStats() {
         double avgPaths;
         int npaths;
-        int counter[][] = new int[configuration.getTopology().getNodes().length][8];
+        int counter[][] = new int[configuration.getTopology().getNodes().length][20];
         int greater = Integer.MIN_VALUE;
         int totalPaths = 0;
         double nDCs = 0, nNodes = 0;

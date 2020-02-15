@@ -1,6 +1,7 @@
 package simulator.cs.anycast.core;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -80,7 +81,7 @@ public class Configuration {
     private RoutesContainer routesContainer;
     private ConnectionManager connectionManager;
     
-    private String id = "novo";
+    private String id = "new";
     private String baseName = "test";
     private String topologyName;
     private String suffix;
@@ -96,8 +97,6 @@ public class Configuration {
     
     private double rhoStorage = 1.8;
     private double rhoProcessing = 1.2;
-    private Double rhosStorage[] = {1.8};
-    private Double rhosProcessing[] = {1.2};
     
     private int minStorageUnits = 1;
     private int maxStorageUnits = 1240;
@@ -108,6 +107,8 @@ public class Configuration {
     
     private int numberThreads = 1;
     
+    private int numberDatacenters = 1;
+    
     // relocation parameters
     private double speedOnFiber = 2E5; // km/s
     private double lightpathThroughtput = 100; // Gbps
@@ -115,7 +116,6 @@ public class Configuration {
     public Configuration(long seed) {
 	this.seed = seed;
 	this.generator = new Random(seed);
-        
     }
     
     public double getUniform() {
@@ -231,6 +231,14 @@ public class Configuration {
 	this.generator = new Random(seed);
     }
 
+    public int getNumberDatacenters() {
+        return numberDatacenters;
+    }
+
+    public void setNumberDatacenters(int numberDatacenters) {
+        this.numberDatacenters = numberDatacenters;
+    }
+
     public Integer[] getLoads() {
 	return loads;
     }
@@ -313,22 +321,6 @@ public class Configuration {
 
     public void setExperiment(int experiment) {
 	this.experiment = experiment;
-    }
-
-    public Double[] getRhosStorage() {
-        return rhosStorage;
-    }
-
-    public void setRhosStorage(Double[] rhosStorage) {
-        this.rhosStorage = rhosStorage;
-    }
-
-    public Double[] getRhosProcessing() {
-        return rhosProcessing;
-    }
-
-    public void setRhosProcessing(Double[] rhosProcessing) {
-        this.rhosProcessing = rhosProcessing;
     }
 
     public double getRhoStorage() {

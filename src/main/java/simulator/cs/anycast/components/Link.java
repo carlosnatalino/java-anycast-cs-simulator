@@ -15,7 +15,7 @@ public class Link extends AbstractComponent {
     private int source;
     private int destination;
     private Node sourceNode, destinationNode;
-    private double weight = 1086;
+    private double weight = 1.0;
     private ArrayList<Connection> connections;
     private int free;
     private boolean dcLink = false;
@@ -29,7 +29,7 @@ public class Link extends AbstractComponent {
     }
     
     public void addConnection(Connection connection) {
-        if (connection.getLightpaths() <= free) {
+        if (connection.getRequiredLPs()<= free) {
             connections.add(connection);
             free -= connection.getRequiredLPs();
             updateUtilization();

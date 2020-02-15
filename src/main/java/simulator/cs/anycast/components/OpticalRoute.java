@@ -105,23 +105,23 @@ public class OpticalRoute {
 	    for (Link link : routeLinks) {
 		if (first && link.getSource() == source) {
 		    first = false;
-		    string += " -(" + link.getFreeWavelengths() + ")> " + link.getDestination();
+		    string += " -(r: " + link.getFreeWavelengths() + ", l: " + link.getWeight() + ")> " + link.getDestination();
 		    last = link.getDestination();
 		    counter++;
 		}
 		else if (first && link.getDestination()== source) {
 		    first = false;
-		    string += " -(" + link.getFreeWavelengths() + ")> " + link.getSource();
+		    string += " -(r: " + link.getFreeWavelengths() + ", l: " + link.getWeight() + ")> " + link.getSource();
 		    last = link.getSource();
 		    counter++;
 		}
 		else {
 		    if (last == link.getSource()) {
-			string += " -(" + link.getFreeWavelengths() + ")> " + link.getDestination();
+			string += " -(r: " + link.getFreeWavelengths() + ", l: " + link.getWeight() + ")> " + link.getDestination();
 			last = link.getDestination();
 			counter++;
 		    } else if (last == link.getDestination()) {
-			string += " -(" + link.getFreeWavelengths() + ")> " + link.getSource();
+			string += " -(r: " + link.getFreeWavelengths() + ", l: " + link.getWeight() + ")> " + link.getSource();
 			last = link.getSource();
 			counter++;
 		    }

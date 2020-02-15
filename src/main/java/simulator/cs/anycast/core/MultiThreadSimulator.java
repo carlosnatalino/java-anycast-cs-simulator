@@ -130,36 +130,21 @@ public class MultiThreadSimulator {
                 for (int s = 0; s < mainConf.getStrategies().length; s++) {
 
                     for (int l = 0; l < mainConf.getLoads().length; l++) {
-                        
-                        for (int rhoProcessing = 0; rhoProcessing < mainConf.getRhosProcessing().length; rhoProcessing++) {
-                            for (int rhoStorage = 0; rhoStorage < mainConf.getRhosStorage().length; rhoStorage++) {
-                                
-                                Configuration conf = FileAgent.getConfiguration(mainConfig);
-                                conf = FileAgent.getConfiguration(mainConfig);
-                                conf.setBaseFolder(mainConf.getBaseFolder());
-                                conf.setPolicy(conf.getStrategies()[s]);
-                                
-                                conf.setLoad(conf.getLoads()[l]);
-                                conf.setRhoProcessing(mainConf.getRhosProcessing()[rhoProcessing]);
-                                conf.setRhoStorage(mainConf.getRhosStorage()[rhoStorage]);
-                                
-                                RoutesContainer.init(conf);
-                                
-                                baseName = "sim-" + conf.getStrategies()[s] + "-" + conf.getLoads()[l];
-                                
-                                if (mainConf.getRhosProcessing().length > 1) {
-                                    baseName += "-" + mainConf.getRhosProcessing()[rhoProcessing];
-                                }
-                                
-                                if (mainConf.getRhosStorage().length > 1) {
-                                    baseName += "-" + mainConf.getRhosStorage()[rhoStorage];
-                                }
-                                
-                                conf.setBaseName(baseName);
-                                listInstances.add(service.submit(new Simulator(conf)));
-                            }
-                        }
-                        
+
+                        Configuration conf = FileAgent.getConfiguration(mainConfig);
+                        conf = FileAgent.getConfiguration(mainConfig);
+                        conf.setBaseFolder(mainConf.getBaseFolder());
+                        conf.setPolicy(conf.getStrategies()[s]);
+
+                        conf.setLoad(conf.getLoads()[l]);
+
+                        RoutesContainer.init(conf);
+
+                        baseName = "sim-" + conf.getStrategies()[s] + "-" + conf.getLoads()[l];
+
+                        conf.setBaseName(baseName);
+                        listInstances.add(service.submit(new Simulator(conf)));
+
                     }
                 }
                 
@@ -176,7 +161,7 @@ public class MultiThreadSimulator {
                 service.shutdown();
                 logger.info("Finishing simulation at " + Configuration.getFormatter().format(LocalDateTime.now()));
                 logger.info("All done :)");
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 java.util.logging.Logger.getLogger(MultiThreadSimulator.class.getName()).log(Level.SEVERE, null, ex);
             }
         }

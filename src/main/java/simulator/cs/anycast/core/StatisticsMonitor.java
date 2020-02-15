@@ -45,7 +45,7 @@ public class StatisticsMonitor {
 	double blocked = configuration.getSimulator().getConnections().stream()
 		.filter(s -> s.getId() > configuration.getIgnoreFirst() && !s.isAccepted())
 		.count();
-	double blocking = (blocked / configuration.getNumberArrivals());
+	double blocking = (blocked / (configuration.getNumberArrivals() - configuration.getIgnoreFirst()));
 	result.add(blocking);
 	
         double averageLinkUtilization = Stream.of(configuration.getTopology().getLinks())
@@ -54,15 +54,15 @@ public class StatisticsMonitor {
                 .getAsDouble();
         result.add(averageLinkUtilization);
         
-        double averagePUUtilization = Stream.of(configuration.getTopology().getNodes())
-                .filter(n -> n.isDatacenter())
+        double averagePUUtilization = configuration.getTopology().getDatacenters().stream()
+//                .filter(n -> n.isDatacenter())
                 .mapToDouble(Node::getProcessingUtilization)
                 .average()
                 .getAsDouble();
         result.add(averagePUUtilization);
         
-        double averageSUUtilization = Stream.of(configuration.getTopology().getNodes())
-                .filter(n -> n.isDatacenter())
+        double averageSUUtilization = configuration.getTopology().getDatacenters().stream()
+//                .filter(n -> n.isDatacenter())
                 .mapToDouble(Node::getStorageUtilization)
                 .average()
                 .getAsDouble();
@@ -71,15 +71,13 @@ public class StatisticsMonitor {
         double hopCount = configuration.getSimulator().getConnections().stream()
 		.filter(s -> s.isAccepted())
                 .mapToInt(Connection::getHopCount)
-                .average()
-                .getAsDouble();
+                .average().orElse(0.0);
 	result.add(hopCount);
         
         double avgWeight = configuration.getSimulator().getConnections().stream()
 		.filter(s -> s.isAccepted())
                 .mapToDouble(Connection::getRouteWeight)
-                .average()
-                .getAsDouble();
+                .average().orElse(0.0);
 	result.add(avgWeight);
         
         result.add(duration);

@@ -1,6 +1,7 @@
 package simulator.cs.anycast.policies;
 
 import simulator.cs.anycast.components.Connection;
+import simulator.cs.anycast.components.Node;
 import simulator.cs.anycast.components.OpticalRoute;
 import simulator.cs.anycast.core.Configuration;
 import simulator.cs.anycast.utils.SimulatorThread;
@@ -25,17 +26,16 @@ public class FullLoadBalancing extends ProvisioningPolicy {
 
 	OpticalRoute route = null, selectedRoute = null;
 	double lowestLoad = Double.MAX_VALUE, load;
-	for (int node = 0; node < configuration.getTopology().getNodes().length; node++) {
-	    if (configuration.getTopology().getDatacenters()[node]
-		    && configuration.getTopology().getNodes()[node].getFreePUs() >= connection.getRequiredPUs()
-		    && configuration.getTopology().getNodes()[node].getFreeSUs() >= connection.getRequiredSUs()) {
+	for (Node node : configuration.getTopology().getDatacenters()) {
+	    if (node.getFreePUs() >= connection.getRequiredPUs() &&
+		node.getFreeSUs() >= connection.getRequiredSUs()) {
 
 		connection.setBlockedByIT(false);
                 
-                route = Algorithms.getLeastLoadedPath(connection, connection.getSource(), node);
+                route = Algorithms.getLeastLoadedPath(connection, connection.getSource(), node.getId());
 		
 		if (route != null) {
-                    load = route.getLoad() * configuration.getTopology().getNodes()[node].getLoad();
+                    load = route.getLoad() * node.getLoad();
                     if (load < lowestLoad) {
                         connection.setBlockedByNetwork(false);
                         lowestLoad = load;
