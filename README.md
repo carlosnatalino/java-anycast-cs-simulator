@@ -14,7 +14,7 @@ The simulator offers multi-threading for running multiple scenarios using a pool
 
 | Plots with averages | Plots with distributions |
 | :---: | :---: |
-| ![Aerage blocking probability](./resources/notebooks/images/blocking_ration.svg) | ![Distribution of the blocking probability](./resources/notebooks/images/box_blocking_ration.svg) |
+| ![Aerage blocking probability](resources/notebooks/images/blocking_ratio.svg) | ![Distribution of the blocking probability](resources/notebooks/images/box_blocking_ratio.svg) |
 
 **You may also be interested in the Python implementation of this simulator.** An anycast version (with similar properties to this one) is available [here](https://github.com/carlosnatalino/python-simple-anycast-wdm-simulator). A version with unicast demands is available [here](https://github.com/carlosnatalino/python-simple-opaque-wdm-simulator). 
 
