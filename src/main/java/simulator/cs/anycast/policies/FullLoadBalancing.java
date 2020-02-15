@@ -38,7 +38,7 @@ public class FullLoadBalancing extends ProvisioningPolicy {
                     load = route.getLoad() * configuration.getTopology().getNodes()[node].getLoad();
                     if (load < lowestLoad) {
                         connection.setBlockedByNetwork(false);
-                        lowestLoad = route.getLoad();
+                        lowestLoad = load;
                         selectedRoute = route;
                     }
 		}

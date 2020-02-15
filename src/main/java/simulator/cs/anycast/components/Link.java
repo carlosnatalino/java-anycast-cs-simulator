@@ -31,7 +31,7 @@ public class Link extends AbstractComponent {
     public void addConnection(Connection connection) {
         if (connection.getLightpaths() <= free) {
             connections.add(connection);
-            free --;
+            free -= connection.getRequiredLPs();
             updateUtilization();
         } else {
             throw new IllegalArgumentException("[" + Thread.currentThread().getName() + "] Connection " + connection.getId() + " tried to connect to a full link " + this);
@@ -41,10 +41,10 @@ public class Link extends AbstractComponent {
     public void removeConnection(Connection connection) {
         if (connections.contains(connection)) {
             connections.remove(connection);
-            free++;
+            free += connection.getRequiredLPs();
             updateUtilization();
         } else {
-            configuration.println("Connection " + connection.getId() + " is not primary assigned to link " + this);
+            configuration.getLogger().warn("Connection " + connection.getId() + " is not primary assigned to link " + this);
             throw new IllegalArgumentException("[" + Thread.currentThread().getName() + "] Connection " + connection.getId() + " is not primary assigned to link " + this);
         }
     }

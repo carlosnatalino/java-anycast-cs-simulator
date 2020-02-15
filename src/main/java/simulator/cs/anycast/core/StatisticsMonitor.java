@@ -43,24 +43,11 @@ public class StatisticsMonitor {
         logger.info("Total connections arrived: " + configuration.getSimulator().getConnections().size());
         
 	double blocked = configuration.getSimulator().getConnections().stream()
-		.filter(s -> s.getId() > configuration.getIgnoreFirst() && s.getId() <= configuration.getNumberArrivals() && !s.isAccepted())
+		.filter(s -> s.getId() > configuration.getIgnoreFirst() && !s.isAccepted())
 		.count();
 	double blocking = (blocked / configuration.getNumberArrivals());
 	result.add(blocking);
 	
-	double totalHoldingTime = configuration.getSimulator().getConnections().stream()
-                .filter(s -> s.getId() > configuration.getIgnoreFirst() && s.getId() <= configuration.getNumberArrivals() && s.isAccepted())
-		.mapToDouble(Connection::getHoldingTime)
-		.sum();
-        result.add(totalHoldingTime);
-        
-	double averageHoldingTime = configuration.getSimulator().getConnections().stream()
-		.filter(s -> s.getId() > configuration.getIgnoreFirst() && s.getId() <= configuration.getNumberArrivals())
-		.mapToDouble(Connection::getHoldingTime)
-		.average()
-		.getAsDouble();
-	result.add(averageHoldingTime);
-        
         double averageLinkUtilization = Stream.of(configuration.getTopology().getLinks())
                 .mapToDouble(Link::getUtilization)
                 .average()
@@ -81,8 +68,6 @@ public class StatisticsMonitor {
                 .getAsDouble();
         result.add(averageSUUtilization);
         
-        result.add(duration);
-        
         double hopCount = configuration.getSimulator().getConnections().stream()
 		.filter(s -> s.isAccepted())
                 .mapToInt(Connection::getHopCount)
@@ -96,6 +81,21 @@ public class StatisticsMonitor {
                 .average()
                 .getAsDouble();
 	result.add(avgWeight);
+        
+        result.add(duration);
+        
+        double totalHoldingTime = configuration.getSimulator().getConnections().stream()
+                .filter(s -> s.getId() > configuration.getIgnoreFirst() && s.isAccepted())
+		.mapToDouble(Connection::getHoldingTime)
+		.sum();
+        result.add(totalHoldingTime);
+        
+	double averageHoldingTime = configuration.getSimulator().getConnections().stream()
+		.filter(s -> s.getId() > configuration.getIgnoreFirst())
+		.mapToDouble(Connection::getHoldingTime)
+		.average()
+		.getAsDouble();
+	result.add(averageHoldingTime);
         
 	FileAgent.reportExperimentStatistics(configuration, result);
 	resultVector.add(result);

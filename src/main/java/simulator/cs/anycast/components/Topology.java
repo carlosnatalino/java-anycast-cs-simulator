@@ -51,7 +51,7 @@ public class Topology {
             nodeDegree[link.getDestination()]++;
         }
         
-        System.out.println("Configuring DC IT resources for rhos (" + configuration.getRhoProcessing() + "," + configuration.getRhoStorage()+ ")");
+        configuration.getLogger().debug("Configuring DC IT resources for rhos (" + configuration.getRhoProcessing() + "," + configuration.getRhoStorage()+ ")");
         
         int pus = 0;
         int sus = 0;
@@ -66,7 +66,7 @@ public class Topology {
                 pus = (int) Math.ceil(nodeDegree[node.getId()] * configuration.getWavelengthsPerFiber() * configuration.getRhoProcessing() * avgPUs);
                 sus = (int) Math.ceil(nodeDegree[node.getId()] * configuration.getWavelengthsPerFiber() * configuration.getRhoStorage() * Math.ceil((configuration.getMaxStorageUnits())/2));
 
-                System.out.println("[" + node.getId() + "] with connectivity [" + nodeDegree[node.getId()] + "] PUs: " + pus + " and SUs: " + sus);
+                configuration.getLogger().debug("[" + node.getId() + "] with connectivity [" + nodeDegree[node.getId()] + "] PUs: " + pus + " and SUs: " + sus);
 
                 node.setPUs(pus);
                 node.setSUs(sus);

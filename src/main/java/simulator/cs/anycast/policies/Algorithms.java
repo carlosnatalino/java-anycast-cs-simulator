@@ -58,7 +58,7 @@ public class Algorithms {
     protected static OpticalRoute getLeastLoadedPath(Connection connection, int src, int dst) {
         Configuration configuration = ((SimulatorThread) Thread.currentThread()).getConfiguration();
         OpticalRoute[] routes = configuration.getRoutesContainer().getRoutes(src, dst);
-        double leastLoad = Double.MIN_VALUE;
+        double leastLoad = Double.MAX_VALUE;
         OpticalRoute route = null;
         for (OpticalRoute or : routes) {
             if (or != null

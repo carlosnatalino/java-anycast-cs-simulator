@@ -397,16 +397,10 @@ public class Configuration {
 	meanConnectionInterArrivalTime = 1 / (load / meanConnectionHoldingTime);
     }
     
-    public void debug(String information) {
-        logger.debug(information);
-    }
-    
-    public void println(String information) {
-        logger.info(information);
-    }
-    
-    public void printerr(String information, Exception e) {
-        logger.error(information, e);
+    public Logger getLogger() {
+        if (logger == null)
+            logger = LogManager.getLogger(id);
+        return logger;
     }
     
 }

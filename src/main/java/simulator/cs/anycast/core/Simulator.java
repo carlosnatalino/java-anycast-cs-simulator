@@ -10,6 +10,8 @@ import org.apache.logging.log4j.Logger;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import simulator.cs.anycast.components.Connection;
+import simulator.cs.anycast.components.Link;
+import simulator.cs.anycast.components.Node;
 import simulator.cs.anycast.events.ConnectionManager;
 import simulator.cs.anycast.events.Event;
 import simulator.cs.anycast.utils.SimulatorThread;
@@ -67,8 +69,6 @@ public class Simulator implements Callable<Boolean> {
     }
     
     public void releaseConnection(Connection conn) {
-        if (activeConnections == null || conn == null)
-            System.out.println("resolvendo");
         activeConnections.remove(conn);
     }
     
@@ -90,11 +90,17 @@ public class Simulator implements Callable<Boolean> {
 	    currentTime = 0.0;
 	    ConnectionManager.init();
 	    Event evt;
-	    while (!events.isEmpty()) {
-		evt = getNextEvent();
-		currentTime = evt.getTime();
-		evt.getAp().activity(evt);
-	    }
+            try { // capturing exceptions thrown by the simulation loop
+                while (!events.isEmpty()) {
+                    evt = getNextEvent();
+                    currentTime = evt.getTime();
+                    evt.getAp().activity(evt);
+                }
+            }
+            catch (Exception e) {
+                logger.fatal("Simulation " + configuration.getId() + " triggered an exception during event loop: " + e.getLocalizedMessage());
+                continue;
+            }
 	    endTime = currentTime;
             duration = Duration.between(lt, LocalDateTime.now()).getSeconds();
             totalDuration += duration;

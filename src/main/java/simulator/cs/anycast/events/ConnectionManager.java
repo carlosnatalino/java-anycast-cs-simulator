@@ -36,9 +36,7 @@ public class ConnectionManager extends ActiveProcess {
 	super();
         logger = LogManager.getLogger("[" + configuration.getId() + "] ConnectionManager");
 	configuration.setConnectionManager(this);
-	double interArrival = configuration.getRandPoisson(configuration.getMeanConnectionInterArrivalTime());
-	double nextConnectionArrivalTime = getSimulator().getCurrentTime() + interArrival;
-	getSimulator().addEvent(new Event(nextConnectionArrivalTime, this, ConnectionManager.ARRIVAL));
+        scheduleNextArrival();
         try {
             Class<ProvisioningPolicy> strategyCls = (Class<ProvisioningPolicy>) Class.forName(Configuration.getPolicyClassName(configuration.getPolicy()));
             policyObj = strategyCls.getDeclaredConstructor().newInstance();
@@ -47,6 +45,16 @@ public class ConnectionManager extends ActiveProcess {
 //            System.exit(10);
         }
         
+    }
+    
+    public String getPolicyName() {
+        return policyObj.getName();
+    }
+    
+    private void scheduleNextArrival() {
+	double nextConnectionArrivalTime = getSimulator().getCurrentTime() + 
+                configuration.getRandPoisson(configuration.getMeanConnectionInterArrivalTime());
+	getSimulator().addEvent(new Event(nextConnectionArrivalTime, this, ConnectionManager.ARRIVAL));
     }
 
     @Override
@@ -96,9 +104,7 @@ public class ConnectionManager extends ActiveProcess {
 	// schedule next arrival
 	if (arrivedConnections < configuration.getNumberArrivals()) {
 	    // schedule new connection
-	    double nextConnectionArrivalTime = getSimulator().getCurrentTime() + configuration.getRandPoisson(configuration.getMeanConnectionInterArrivalTime());
-	    this.setTime(nextConnectionArrivalTime);
-	    getSimulator().addEvent(new Event(nextConnectionArrivalTime, this, 1));
+	    scheduleNextArrival();
 	    
 	    if (arrivedConnections % 1000 == 0) {
 		logger.info("[ " + arrivedConnections + " ] arrived connections");

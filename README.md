@@ -4,28 +4,65 @@
 
 Simple simulator implemented in Java (version >=8) for simulating opaque WDM networks, e.g, optical networks containing wavelength conversion at each node.
 This means that the lightpaths do not need to enforce the wavelength continuity constraint.
-In simpler terms, the infrastructure simulated in this project can be understood as a circuit-switched network with anycast traffic, i.e., the destination can be selected by the routing algorithm given some criteria.
+In simpler terms, the infrastructure simulated in this project can be understood as a circuit-switched (and therefore the *cs* acronym in the project name) network with anycast traffic, i.e., the destination can be selected by the routing algorithm given some criteria.
 For more info, see [this paper](https://ieeexplore.ieee.org/abstract/document/767791).
 The service requests are modeled as anycast, i.e., the service destination can be selected among the data centers available in the network.
 The simulator implements the basic funcionalities, and allows you to add more complex features for your particular purposes.
 The simulator offers multi-threading for running multiple scenarios using a pool of threads, taking advantage of high-performance computing environments.
 
+### Examples of results generated
+
+| Plots with averages | Plots with distributions |
+| :---: | :---: |
+| ![Aerage blocking probability](./resources/notebooks/images/blocking_ration.svg) | ![Distribution of the blocking probability](./resources/notebooks/images/box_blocking_ration.svg) |
+
+**You may also be interested in the Python implementation of this simulator.** An anycast version (with similar properties to this one) is available [here](https://github.com/carlosnatalino/python-simple-anycast-wdm-simulator). A version with unicast demands is available [here](https://github.com/carlosnatalino/python-simple-opaque-wdm-simulator). 
+
 ### Dependencies:
 
-This code was validated using Java 11. The code was developed using [NetBeans](https://netbeans.org/), but by being a gradle project you can use your preferred IDE. The software has the following dependencies:
+The code was developed using [NetBeans](https://netbeans.org/), but by being a gradle project you can use your preferred IDE. The software has the following dependencies:
 
 - Gradle (for dependency and build management)
 - Log4J (for advanced logging features)
 - jGraphT (for graph manipulation and path computation)
 - Typesafe Config (for configuration file reading)
+- xGraph (for plot generation)
 
 ### Code organization and features:
 
-The following algorithms are implemented:
-- **Closest available data center (CADC)**: selects the the data center with enough capacity that has the shortest available path.
+This simulator implements and/or leverages the following functionalities:
+- Uses gradle build tool to accelerate development and build, and facilitate dependency management;
+- Uses the multithreading capabilities of Java to execute several simulation scenarios (configurations) in parallel;
+- Reads topology files from the [SNDlib](http://sndlib.zib.de/) topology database;
+- Generates timestamp'd folder where results are saved to avoid rewriting important results;
+- Leverages the reflection capabilities of Java to facilitate the development and configuration;
+- Uses external configuration files, not requiring recompilation to change configurations, making it also appropriate for running in cluster or HPC research platforms.
+
+The following routing policies are implemented:
+- **Closest available data center (CADC)**: selects the data center with enough capacity that has the shortest available path.
+- **Least loaded data center (LLDC)**: selects the data center with the most available capacity that has an available path.
+- **Least loaded path (LLP)**: selects the least loaded path that reaches a DC with enough capacity.
 - **Full load balancing (FLB)**: selects the path and data center with the lowest combined load, i.e., the combined load is computed as the multiplication of the path and data center current usage.
 
 An analysis of the routing/placement algorithms can be found [here](https://ieeexplore.ieee.org/abstract/document/6294216).
+
+The following package organization is used:
+- [*simulator.cs.anycast.**components**:*](./src/main/java/simulator/cs/anycast/components) This package contains the modeling of all the resources available for the simulation, e.g., links, nodes.
+- [*simulator.cs.anycast.**core**:*](./src/main/java/simulator/cs/anycast/core) This package contains the core classes of the simulator.
+- [*simulator.cs.anycast.**events**:*](./src/main/java/simulator/cs/anycast/events) This package contains classes related to simulation event management. As of now, connection arrival and departure are the only ones. For instance, you could add link failure events by adding a class in this package, similar to the scenario considered in [this paper](#Citing-this-software).
+- [*simulator.cs.anycast.**plot**:*](./src/main/java/simulator/cs/anycast/plot) This package contains classes related to the plot generation.
+- [*simulator.cs.anycast.**policies**:*](./src/main/java/simulator/cs/anycast/policies) This package contains classes that implement the policies run by the simulator, including an abstract class that must be implemented by new policies.
+- [*simulator.cs.anycast.**utils**:*](./src/main/java/simulator/cs/anycast/utils) This package contains utilitarian classes such as the ones modeling the thread factory and thread object.
+
+### Running with docker
+
+Docker provides an official Java image [here](https://hub.docker.com/_/openjdk). Use `openjdk:12` for the latest version of Java (as of when I'm writing this README).
+
+### Post-processing the results
+
+**Python:** You can find a jupyter notebook which reads the results files and plots the results [here](./resources/notebooks/python-generate-plots.ipynb).
+
+**Java:** Reading and plotting results is under development.
 
 ### Citing this software
 
@@ -49,3 +86,5 @@ BibTeX entry:
     month={Feb},
     }
 ~~~~
+
+

@@ -18,5 +18,9 @@ public abstract class ProvisioningPolicy {
     public abstract Connection assign(Connection connection);
     
     public abstract Connection release(Connection connection);
+
+    public String getName() {
+        return name;
+    }
     
 }

@@ -51,7 +51,36 @@ public class MultiThreadSimulator {
      */
     public static void main(String[] args) {
         
-        Config mainConfig = ConfigFactory.parseFile(new File("resources/config/simulation.conf"));
+        Config mainConfig = null;
+        try {
+            // verifying if all the files are in place
+            // configuration file
+            mainConfig = ConfigFactory.parseFile(new File("resources/config/simulation.conf"));
+            mainConfig.getInt("simulation.seed");
+            
+            // topology file
+            String path = "resources/topologies/" + mainConfig.getString("simulation.topology");
+            FileAgent.readFile(path);
+        }
+        catch (Exception e) {
+            System.err.println("Configuration file not found in: resources/config/simulation.conf.");
+            System.err.println("Make sure that the file has the correct configuration.");
+            System.err.println("Make sure you have all your configuration and topology files in place before continuing.");
+            System.exit(2);
+        }
+        
+        try {
+            // topology file
+            String path = "resources/topologies/" + mainConfig.getString("simulation.topology");
+            FileAgent.readFile(path);
+        }
+        catch (Exception e) {
+            System.err.println("Topology file not found in: " + 
+                    "resources/topologies/" + mainConfig.getString("simulation.topology"));
+            System.err.println("Make sure that the file has the correct syntax.");
+            System.err.println("Make sure you have all your configuration and topology files in place before continuing.");
+            System.exit(3);
+        }
         
         if (args.length > 0 && args[0] == "validate-config") {
             //TODO implement the config validation
@@ -90,6 +119,8 @@ public class MultiThreadSimulator {
             
                 Files.write(path, text.getBytes(), StandardOpenOption.CREATE_NEW);
                 
+                FileAgent.init(mainConf);
+                
                 RoutesContainer.init(mainConf); // starting the routing container
                 ExecutorService service = Executors.newFixedThreadPool(mainConf.getNumberThreads(), new SimulatorThreadFactory());
                 
@@ -97,18 +128,13 @@ public class MultiThreadSimulator {
                 logger.debug("Starting simulation at " + Configuration.getFormatter().format(LocalDateTime.now()));
                 
                 for (int s = 0; s < mainConf.getStrategies().length; s++) {
-                    
-                    Configuration conf = FileAgent.getConfiguration(mainConfig);
-                    conf.setBaseFolder(mainConf.getBaseFolder());
-                    conf.setPolicy(conf.getStrategies()[s]);
-                                
-                    FileAgent.initScenario(conf);
-                        
+
                     for (int l = 0; l < mainConf.getLoads().length; l++) {
                         
                         for (int rhoProcessing = 0; rhoProcessing < mainConf.getRhosProcessing().length; rhoProcessing++) {
                             for (int rhoStorage = 0; rhoStorage < mainConf.getRhosStorage().length; rhoStorage++) {
                                 
+                                Configuration conf = FileAgent.getConfiguration(mainConfig);
                                 conf = FileAgent.getConfiguration(mainConfig);
                                 conf.setBaseFolder(mainConf.getBaseFolder());
                                 conf.setPolicy(conf.getStrategies()[s]);

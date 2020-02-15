@@ -3,7 +3,6 @@ package simulator.cs.anycast.core;
 import com.typesafe.config.Config;
 import java.math.BigDecimal;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -45,37 +44,40 @@ public class FileAgent {
 	timeFormat.setMaximumFractionDigits(0);
     }
     
-    public static void initScenario(Configuration configuration) {
+    public static void init(Configuration configuration) {
         try {
             
-            String header = "id" + columnSeparator + 
+            String header = "policy" + columnSeparator + 
                             "exp" + columnSeparator + 
                             "load" + columnSeparator + 
                             "blocking" + columnSeparator + 
-                            "totHoldTime" + columnSeparator + 
-                            "avgHoldTime" + columnSeparator + 
                             "avgLinkUtil" + columnSeparator + 
                             "avgProcUtil" + columnSeparator + 
                             "avgStoUtil" + columnSeparator + 
-                            "simTime" + columnSeparator + 
                             "avgHopCount" + columnSeparator + 
-                            "avgPathWeight" + lineSeparator;
+                            "avgPathWeight" + columnSeparator + 
+                            "simTime" + columnSeparator + 
+                            "totHoldTime" + columnSeparator + 
+                            "avgHoldTime" + lineSeparator;
             
-            Path path = Paths.get(configuration.getBaseFolder() + "results-" + configuration.getPolicy() + "-" + configuration.getSuffix() + ".csv");
+            Path path = Paths.get(configuration.getBaseFolder() + "results-" + configuration.getSuffix() + ".csv");
             Files.write(path, header.getBytes(), StandardOpenOption.CREATE_NEW);
             
-//            for (String file : files) {
-//                Path path = Paths.get(configuration.getBaseFolder() + file + configuration.getSuffix()+ ".csv");
-//                if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS))
-//                    Files.createFile(path);
-//                String header = "";
-//                String text = configuration.getId() + columnSeparator + configuration.getExperiment();
-//                for (Double res : results)
-//                    text += columnSeparator + res;
-//                text += lineSeparator;
-//
-//                Files.write(path, text.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
-//            }
+            header = "policy" + columnSeparator + 
+                     "load" + columnSeparator + 
+                     "blocking" + columnSeparator + 
+                     "avgLinkUtil" + columnSeparator + 
+                     "avgProcUtil" + columnSeparator + 
+                     "avgStoUtil" + columnSeparator + 
+                     "avgHopCount" + columnSeparator + 
+                     "avgPathWeight" + columnSeparator + 
+                     "simTime" + columnSeparator + 
+                     "totHoldTime" + columnSeparator + 
+                     "avgHoldTime" + lineSeparator;
+            
+            path = Paths.get(configuration.getBaseFolder() + "results-avg-" + configuration.getSuffix() + ".csv");
+            Files.write(path, header.getBytes(), StandardOpenOption.CREATE_NEW);
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new IllegalArgumentException("[" + Thread.currentThread().getName() + "] Problem when creating files for the experiment " + configuration.getId());
@@ -226,9 +228,9 @@ public class FileAgent {
      */
     public static void reportExperimentStatistics(Configuration configuration, ArrayList<Double> results) {
 	try {
-            Path path = Paths.get(configuration.getBaseFolder() + "results-" + configuration.getPolicy() + "-" + configuration.getSuffix() + ".csv");
+            Path path = Paths.get(configuration.getBaseFolder() + "results-" + configuration.getSuffix() + ".csv");
             
-            String text = configuration.getId() + columnSeparator + configuration.getExperiment();
+            String text = configuration.getConnectionManager().getPolicyName() + columnSeparator + configuration.getExperiment();
             for (Double res : results)
 		text += columnSeparator + res;
             text += lineSeparator;
@@ -251,12 +253,12 @@ public class FileAgent {
     public static void reportFinalStatistics(Configuration configuration, ArrayList<BigDecimal> results) {
 	try {
             
-            String text = configuration.getBaseName();
+            String text = configuration.getConnectionManager().getPolicyName();
             for (BigDecimal res : results)
 		text += columnSeparator + format.format(res);
             text += lineSeparator;
             
-//            Files.write(Paths.get(configuration.getBaseFolder() + "results-avg-" + configuration.getSuffix()+ ".csv"), text.getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(configuration.getBaseFolder() + "results-avg-" + configuration.getSuffix()+ ".csv"), text.getBytes(), StandardOpenOption.APPEND);
             
 	} catch (Exception ex) {
 	    ex.printStackTrace();
