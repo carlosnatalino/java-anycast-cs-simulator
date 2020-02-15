@@ -27,6 +27,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import simulator.cs.anycast.components.Link;
 import simulator.cs.anycast.components.Topology;
+import simulator.cs.anycast.policies.ProvisioningPolicy;
 
 
 /**
@@ -103,12 +104,12 @@ public class FileAgent {
         
         config.setBaseFolder(mainConfig.getString("simulation.folder"));
         
-        List<Integer> l = mainConfig.getIntList("simulation.strategies");
-        Configuration.Policy[] strategies = new Configuration.Policy[l.size()];
+        List<Integer> l = mainConfig.getIntList("simulation.policies");
+        ProvisioningPolicy.Policy[] policies = new ProvisioningPolicy.Policy[l.size()];
 	for (int i = 0; i < l.size() ; i++) {
-            strategies[i] = Configuration.Policy.fromInteger(l.get(i));
+            policies[i] = ProvisioningPolicy.Policy.fromInteger(l.get(i));
         }
-        config.setStrategies(strategies);
+        config.setPolicies(policies);
         
         config.setRhoProcessing(mainConfig.getDouble("simulation.rho-processing"));
         

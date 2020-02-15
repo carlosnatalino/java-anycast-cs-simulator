@@ -63,6 +63,15 @@ The following package organization is used:
 - [*simulator.cs.anycast.**policies**:*](./src/main/java/simulator/cs/anycast/policies) This package contains classes that implement the policies run by the simulator, including an abstract class that must be implemented by new policies.
 - [*simulator.cs.anycast.**utils**:*](./src/main/java/simulator/cs/anycast/utils) This package contains utilitarian classes such as the ones modeling the thread factory and thread object.
 
+### Simulator configuration and resources
+
+The configurations of the simulator are concentrated in the [simulation.conf](./resources/config/simulation.conf) file. A series of configuration options are available, as for instance:
+- [*threads*](./resources/config/simulation.conf#L11): how many threads to use for running the simulations;
+- [*policies*](./resources/config/simulation.conf#L4): which policies to run for the simulation; a list can be found in the [Provisioning Policy](./src/main/java/simulator/cs/anycast/policies/ProvisioningPolicy.java) class;
+- [*load*](./resources/config/simulation.conf#L12-15): you can configure the range of load that you want to run the simulation.
+
+You can also configure the specific Log4J behavior [here](./resources/config/log4js.xml).
+
 ### Post-processing the results
 
 **Python:** You can find a jupyter notebook which reads the results files and plots the results [here](./resources/notebooks/python-generate-plots.ipynb).

@@ -1,12 +1,13 @@
 package simulator.cs.anycast.core;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import simulator.cs.anycast.components.Topology;
 import simulator.cs.anycast.events.ConnectionManager;
+import simulator.cs.anycast.policies.ProvisioningPolicy;
+import simulator.cs.anycast.policies.ProvisioningPolicy.Policy;
 
 /**
  * This class should be spread for all the objects in the simulator
@@ -18,48 +19,6 @@ public class Configuration {
     
     private Logger logger;
     
-    public enum Policy {
-        CLOSEST_AVAILABLE_DC(1),
-        LEAST_LOADED_PATH(2),
-        LEAST_LOADED_DC(3),
-        FULL_LOAD_BALANCING(4);
-	private int numVal;
-	private Policy(int numVal) {
-	    this.numVal = numVal;
-	}
-	public static Policy fromInteger(int x) {
-	    switch(x) {
-		case 1:
-		    return CLOSEST_AVAILABLE_DC;
-                case 2:
-                    return LEAST_LOADED_PATH;
-                case 3:
-                    return LEAST_LOADED_DC;
-                case 4:
-                    return FULL_LOAD_BALANCING;
-                
-		default:
-		    return null;
-	    }
-	}
-    }
-    
-    public static String getPolicyClassName(Configuration.Policy plc) {
-        switch (plc) {
-            case CLOSEST_AVAILABLE_DC:
-                return "simulator.cs.anycast.policies.ClosestAvailableDC";
-            case LEAST_LOADED_PATH:
-                return "simulator.cs.anycast.policies.LeastLoadedPath";
-            case LEAST_LOADED_DC:
-                return "simulator.cs.anycast.policies.LeastLoadedDC";
-            case FULL_LOAD_BALANCING:
-                return "simulator.cs.anycast.policies.FullLoadBalancing";
-                
-            default:
-                return "Error";
-        }
-    }
-    
     private static final DateTimeFormatter formatter;
     static {
 	formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -68,7 +27,7 @@ public class Configuration {
     private Integer[] loads = {0}; // the set of loads configured in the configuration file
     private Integer load = 0; // the load currently used
     
-    private Policy[] strategies;
+    private Policy[] policies;
     private Policy policy;
     
     private long seed;
@@ -247,23 +206,23 @@ public class Configuration {
 	this.loads = loads;
     }
 
-    public Policy[] getStrategies() {
-	return strategies;
+    public ProvisioningPolicy.Policy[] getPolicies() {
+	return policies;
     }
 
-    public void setStrategies(Policy[] strategies) {
-	this.strategies = strategies;
+    public void setPolicies(ProvisioningPolicy.Policy[] strategies) {
+	this.policies = strategies;
     }
 
     public Integer getLoad() {
 	return load;
     }
 
-    public Policy getPolicy() {
+    public ProvisioningPolicy.Policy getPolicy() {
 	return policy;
     }
 
-    public void setPolicy(Policy strategy) {
+    public void setPolicy(ProvisioningPolicy.Policy strategy) {
 	this.policy = strategy;
     }
 

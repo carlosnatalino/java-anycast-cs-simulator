@@ -127,20 +127,20 @@ public class MultiThreadSimulator {
                 String baseName;
                 logger.debug("Starting simulation at " + Configuration.getFormatter().format(LocalDateTime.now()));
                 
-                for (int s = 0; s < mainConf.getStrategies().length; s++) {
+                for (int s = 0; s < mainConf.getPolicies().length; s++) {
 
                     for (int l = 0; l < mainConf.getLoads().length; l++) {
 
                         Configuration conf = FileAgent.getConfiguration(mainConfig);
                         conf = FileAgent.getConfiguration(mainConfig);
                         conf.setBaseFolder(mainConf.getBaseFolder());
-                        conf.setPolicy(conf.getStrategies()[s]);
+                        conf.setPolicy(conf.getPolicies()[s]);
 
                         conf.setLoad(conf.getLoads()[l]);
 
                         RoutesContainer.init(conf);
 
-                        baseName = "sim-" + conf.getStrategies()[s] + "-" + conf.getLoads()[l];
+                        baseName = "sim-" + conf.getPolicies()[s] + "-" + conf.getLoads()[l];
 
                         conf.setBaseName(baseName);
                         listInstances.add(service.submit(new Simulator(conf)));

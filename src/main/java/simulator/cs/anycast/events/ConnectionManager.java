@@ -38,7 +38,7 @@ public class ConnectionManager extends ActiveProcess {
 	configuration.setConnectionManager(this);
         scheduleNextArrival();
         try {
-            Class<ProvisioningPolicy> strategyCls = (Class<ProvisioningPolicy>) Class.forName(Configuration.getPolicyClassName(configuration.getPolicy()));
+            Class<ProvisioningPolicy> strategyCls = (Class<ProvisioningPolicy>) Class.forName(ProvisioningPolicy.getPolicyClassName(configuration.getPolicy()));
             policyObj = strategyCls.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             logger.fatal("ConnectionManager:ConnectionManager: something bad is about to happen!!!! ", e);
