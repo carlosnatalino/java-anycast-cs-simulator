@@ -84,19 +84,21 @@ Docker provides an official gradle image [here](https://hub.docker.com/_/gradle)
 
 Running the simulator on the docker container:
 
-`docker run -it --rm -u gradle -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:6.1.1-jdk13 gradle run`
+`docker run -it --rm -u $(id -u):$(id -g) -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:6.1.1-jdk13 gradle run`
 
 Generating a slim jar file on the docker container:
 
-`docker run -it --rm -u gradle -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:6.1.1-jdk13 gradle jar`
+`docker run -it --rm -u $(id -u):$(id -g) -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:6.1.1-jdk13 gradle jar`
 
 Generating a complete jar (with dependencies) on the docker container:
 
-`docker run -it --rm -u gradle -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:6.1.1-jdk13 gradle fullJar`
+`docker run -it --rm -u $(id -u):$(id -g) -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:6.1.1-jdk13 gradle fullJar`
 
 Get a terminal to the docker container:
 
-`docker run -it --rm -u gradle -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:6.1.1-jdk13 bash`
+`docker run -it --rm -u $(id -u):$(id -g) -v "$PWD":/home/gradle/project -w /home/gradle/project gradle:6.1.1-jdk13 bash`
+
+*Observation*: The `-u $(id -u):$(id -g)` part of the docker command makes the files created by the project to be owned by your user, and prevents you need to deal with file permissions later on. More info [here](https://dille.name/blog/2018/07/16/handling-file-permissions-when-writing-to-volumes-from-docker-containers/).
 
 ### Citing this software
 
