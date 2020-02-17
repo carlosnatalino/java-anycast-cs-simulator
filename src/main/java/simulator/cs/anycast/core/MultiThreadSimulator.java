@@ -3,7 +3,6 @@ package simulator.cs.anycast.core;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -103,7 +102,7 @@ public class MultiThreadSimulator {
                 System.setProperty("logFileName", mainConf.getBaseFolder() + mainConfig.getString("simulation.suffix"));
                 logger = LogManager.getLogger(MultiThreadSimulator.class);
                 
-                Files.copy(Path.of(configFile), Path.of(mainConf.getBaseFolder() + "simulation.conf"));
+                Files.copy(Paths.get(configFile), Paths.get(mainConf.getBaseFolder() + "simulation.conf"));
                 
                 dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
                 

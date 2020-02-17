@@ -10,8 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 import simulator.cs.anycast.components.Connection;
-import simulator.cs.anycast.components.Link;
-import simulator.cs.anycast.components.Node;
 import simulator.cs.anycast.events.ConnectionManager;
 import simulator.cs.anycast.events.Event;
 import simulator.cs.anycast.utils.SimulatorThread;

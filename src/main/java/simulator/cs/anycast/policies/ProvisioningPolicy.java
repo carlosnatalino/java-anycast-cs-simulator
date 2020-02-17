@@ -1,7 +1,6 @@
 package simulator.cs.anycast.policies;
 
 import simulator.cs.anycast.components.Connection;
-import simulator.cs.anycast.core.Configuration;
 
 /**
  *

@@ -3,7 +3,6 @@ package simulator.cs.anycast.events;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import simulator.cs.anycast.components.Connection;
-import simulator.cs.anycast.core.Configuration;
 import simulator.cs.anycast.policies.ProvisioningPolicy;
 
 /**
