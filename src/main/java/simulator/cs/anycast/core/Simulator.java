@@ -4,11 +4,10 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.concurrent.Callable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jgrapht.util.FibonacciHeap;
-import org.jgrapht.util.FibonacciHeapNode;
 import simulator.cs.anycast.components.Connection;
 import simulator.cs.anycast.events.ConnectionManager;
 import simulator.cs.anycast.events.Event;
@@ -25,7 +24,7 @@ public class Simulator implements Callable<Boolean> {
     
     private Configuration configuration;
     private StatisticsMonitor statisticsMonitor;
-    private FibonacciHeap<Event> events; //TODO update the heap
+    private PriorityQueue<Event> events;
     private List<Connection> connections; // all connections handled
     private List<Connection> activeConnections; // only the ones currently active
     private double currentTime = 0.0;
@@ -36,17 +35,13 @@ public class Simulator implements Callable<Boolean> {
     public Simulator(Configuration configuration) {
 	this.configuration = configuration;
 	this.statisticsMonitor = new StatisticsMonitor(configuration);
-	this.events = new FibonacciHeap<>();
+        this.events = new PriorityQueue<>();
 	configuration.setStatisticsMonitor(statisticsMonitor);
 	configuration.setSimulator(this);
     }
     
     public void addEvent(Event event) {
-	events.insert(new FibonacciHeapNode<>(event), event.getTime());
-    }
-    
-    public Event getNextEvent() {
-	return events.removeMin().getData();
+        events.add(event);
     }
 
     public double getCurrentTime() {
@@ -89,8 +84,7 @@ public class Simulator implements Callable<Boolean> {
 	    ConnectionManager.init();
 	    Event evt;
             try { // capturing exceptions thrown by the simulation loop
-                while (!events.isEmpty()) {
-                    evt = getNextEvent();
+                while ((evt = events.poll()) != null) {
                     currentTime = evt.getTime();
                     evt.getAp().activity(evt);
                 }
@@ -113,12 +107,7 @@ public class Simulator implements Callable<Boolean> {
     
 
     @Override
-//    @Loggable
     public Boolean call() {
-//	System.out.println("\n#################");
-//	for (int i = 0 ; i < 5 ; i++) {
-//	    System.out.println(configuration.getUniform());
-//	}
 	
         SimulatorThread thread = (SimulatorThread) Thread.currentThread();
         thread.setSimulator(this);
@@ -136,7 +125,7 @@ public class Simulator implements Callable<Boolean> {
     private void reset() {
         this.connections = new ArrayList<>();
         this.activeConnections = new ArrayList<>();
-        this.events = new FibonacciHeap<>();
+        this.events = new PriorityQueue<>();
     }
 
     public boolean isLog() {

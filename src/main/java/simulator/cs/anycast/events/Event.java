@@ -8,7 +8,7 @@ package simulator.cs.anycast.events;
  * 
  * @author carlosnatalino
  */
-public class Event<E> {
+public class Event<E> implements Comparable<Event>{
     
     private double time;
     private E context;
@@ -54,6 +54,21 @@ public class Event<E> {
 
     public ActiveProcess getAp() {
 	return ap;
+    }
+
+    /**
+     * Implementation of the method that allows the ordering of the priority
+     * queue. We use the event time to perform the comparison.
+     * 
+     * @param o the other event to be compared to this one
+     * @return 
+     */
+    @Override
+    public int compareTo(Event o) {
+        if (time < o.getTime()) // if this event happens before the other
+            return -1;
+        else
+            return 1;
     }
     
 }
