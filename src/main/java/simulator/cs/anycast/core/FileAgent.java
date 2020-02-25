@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilder;
@@ -60,33 +62,20 @@ public class FileAgent {
     public static void init(Configuration configuration) {
         try {
             
-            String header = "policy" + columnSeparator + 
-                            "exp" + columnSeparator + 
-                            "load" + columnSeparator + 
-                            "blocking" + columnSeparator + 
-                            "avgLinkUtil" + columnSeparator + 
-                            "avgProcUtil" + columnSeparator + 
-                            "avgStoUtil" + columnSeparator + 
-                            "avgHopCount" + columnSeparator + 
-                            "avgPathWeight" + columnSeparator + 
-                            "simTime" + columnSeparator + 
-                            "totHoldTime" + columnSeparator + 
-                            "avgHoldTime" + lineSeparator;
+            String header = "";
+            for (String h : StatisticsMonitor.headersExperimentFile) {
+                header += h + columnSeparator;
+            }
+            header += lineSeparator;
             
             Path path = Paths.get(configuration.getBaseFolder() + "results-" + configuration.getSuffix() + ".csv");
             Files.write(path, header.getBytes(), StandardOpenOption.CREATE_NEW);
             
-            header = "policy" + columnSeparator + 
-                     "load" + columnSeparator + 
-                     "blocking" + columnSeparator + 
-                     "avgLinkUtil" + columnSeparator + 
-                     "avgProcUtil" + columnSeparator + 
-                     "avgStoUtil" + columnSeparator + 
-                     "avgHopCount" + columnSeparator + 
-                     "avgPathWeight" + columnSeparator + 
-                     "simTime" + columnSeparator + 
-                     "totHoldTime" + columnSeparator + 
-                     "avgHoldTime" + lineSeparator;
+            header = "";
+            for (String h : StatisticsMonitor.headersAverageFile) {
+                header += h + columnSeparator;
+            }
+            header += lineSeparator;
             
             path = Paths.get(configuration.getBaseFolder() + "results-avg-" + configuration.getSuffix() + ".csv");
             Files.write(path, header.getBytes(), StandardOpenOption.CREATE_NEW);
@@ -324,6 +313,17 @@ public class FileAgent {
             throw new IllegalArgumentException("[" + Thread.currentThread().getName() + "] Problem when creating final statistics files for the experiment " + configuration.getId());
 	}
 	
+    }
+    
+    public static void copyFolder(Path src, Path dst) throws IOException {
+        Files.walk(src)
+        .forEach(source -> {
+            try {
+                Files.copy(src, dst.resolve(src.relativize(source)));
+            } catch (IOException ex) {
+                Logger.getLogger(FileAgent.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
     }
     
 }

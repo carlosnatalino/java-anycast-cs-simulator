@@ -14,6 +14,10 @@ targetCompatibility = 1.8
 
 mainClassName = 'simulator.cs.anycast.core.MultiThreadSimulator'
 
+// run
+// unzip -q -c yourfile.jar META-INF/MANIFEST.MF
+// to see all the manifest information
+
 jar { // create a jar without the dependencies
     manifest {
         attributes(

@@ -26,6 +26,17 @@ public class StatisticsMonitor {
     private ArrayList<ArrayList<Double>> resultVector = new ArrayList<>();
     
     private final Logger logger;
+    
+    public static final String[] headersExperimentFile = new String[]{
+        "policy", "exp", "load", "blocking", "avgLinkUtil", "avgProcUtil", 
+        "avgStoUtil", "avgHopCount", "avgPathWeight", "simTime", "totHoldTime", 
+        "avgHoldTime"
+    };
+    
+    public static final String[] headersAverageFile = new String[]{
+        "policy", "load", "blocking", "avgLinkUtil", "avgProcUtil", "avgStoUtil", 
+        "avgHopCount", "avgPathWeight", "simTime", "totHoldTime", "avgHoldTime"
+    };
 
     public StatisticsMonitor(Configuration configuration) {
 	this.configuration = configuration;
@@ -35,8 +46,10 @@ public class StatisticsMonitor {
     
     /**
      * Method to compute the statistics after one experiment
+     * If you update this method, do not forget to update the headersExperimentFile
+     * variable definition to reflect the correct columns.
      */
-    public void computeStatistics(double duration) {
+    public ArrayList<Double> computeStatistics(double duration) {
 	ArrayList<Double> result = new ArrayList<>();
 	result.add(configuration.getLoad().doubleValue());
 	
@@ -95,11 +108,17 @@ public class StatisticsMonitor {
 		.getAsDouble();
 	result.add(averageHoldingTime);
         
-	FileAgent.reportExperimentStatistics(configuration, result);
 	resultVector.add(result);
-        
+        return result;
     }
     
+    /**
+     * Method that computes the averages and confidence intervals of all the
+     * experiments of a particular scenario.
+     * If you change this method, also update the headersAverageFile to reflect
+     * the correct columns.
+     * @return an array of the average results.
+     */
     private ArrayList<BigDecimal> computeAvgStatistics() {
 	ArrayList<BigDecimal> results = new ArrayList<>();
         for (int i = 0 ; i < resultVector.get(0).size() ; i++) {

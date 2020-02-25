@@ -49,7 +49,6 @@ public class MultiThreadSimulator {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
         Config mainConfig = null;
         try {
             // verifying if all the files are in place
@@ -115,8 +114,16 @@ public class MultiThreadSimulator {
                 text += "\n";
                 
                 Path path = Paths.get(mainConf.getBaseFolder() + "0-info.txt");
-            
                 Files.write(path, text.getBytes(), StandardOpenOption.CREATE_NEW);
+                
+                // saves the current version used within the folder
+                String base = MultiThreadSimulator.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+                if (base.endsWith(".jar")) {
+                    Files.copy(Paths.get(base), Paths.get(mainConf.getBaseFolder() + "java-simulator.jar"));
+                }
+                else {
+                    FileAgent.copyFolder(Paths.get(base), Paths.get(mainConf.getBaseFolder() + "java-simulator/"));
+                }
                 
                 FileAgent.init(mainConf);
                 

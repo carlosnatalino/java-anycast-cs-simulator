@@ -96,7 +96,8 @@ public class Simulator implements Callable<Boolean> {
 	    endTime = currentTime;
             duration = Duration.between(lt, LocalDateTime.now()).getSeconds();
             totalDuration += duration;
-	    statisticsMonitor.computeStatistics(duration); // compute statistics for each experiment
+	    ArrayList<Double> resultExp = statisticsMonitor.computeStatistics(duration); // compute statistics for each experiment
+            FileAgent.reportExperimentStatistics(configuration, resultExp);
             statisticsMonitor.reset();
             
             logger.debug("Finishing experiment " + experiment);
