@@ -118,6 +118,8 @@ public class MultiThreadSimulator {
                 
                 // saves the current version used within the folder
                 String base = MultiThreadSimulator.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+                boolean IS_WINDOWS = System.getProperty( "os.name" ).contains( "indow" );
+                base = (IS_WINDOWS && base.startsWith("/")) ? base.substring(1) : base;
                 if (base.endsWith(".jar")) {
                     Files.copy(Paths.get(base), Paths.get(mainConf.getBaseFolder() + "java-simulator.jar"));
                 }
