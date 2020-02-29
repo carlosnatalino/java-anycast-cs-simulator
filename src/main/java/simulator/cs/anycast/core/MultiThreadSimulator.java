@@ -18,6 +18,7 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import simulator.cs.anycast.plot.Plot;
 import simulator.cs.anycast.utils.SimulatorThreadFactory;
 
 /**
@@ -168,6 +169,8 @@ public class MultiThreadSimulator {
                 
                 service.shutdown();
                 logger.info("Finishing simulation at " + Configuration.getFormatter().format(LocalDateTime.now()));
+                logger.info("Generating charts ...");
+                Plot.save(mainConf);
                 logger.info("All done :)");
             } catch (Exception ex) {
                 java.util.logging.Logger.getLogger(MultiThreadSimulator.class.getName()).log(Level.SEVERE, null, ex);
