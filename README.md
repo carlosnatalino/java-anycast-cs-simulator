@@ -123,4 +123,6 @@ BibTeX entry:
     }
 ~~~~
 
+### Best practices
 
+Discrete-event simulation is one of the most useful techniques to evaluate quickly and effectively the performance of systems. It enables benchmarking proposed strategies against existing ones in a time- and computing-efficient manner. However, there are several aspects that should be considered when designing and implementing your simulation environment. In this tutorial, a number of best practices when designing and implementing event-driven simulations will be discussed. A use case of routing in optical networks will be used as an example. The implementation of the main simulator components using Java and Python will be described.
