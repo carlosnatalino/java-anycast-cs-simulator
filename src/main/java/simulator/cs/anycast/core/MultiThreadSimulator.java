@@ -36,13 +36,17 @@ public class MultiThreadSimulator {
     
     private static Logger logger;
     
-    private static String configFile = "resources/config/simulation.conf";
+    public static final String configFile = "resources" + File.separator + 
+                                            "config" + File.separator + 
+                                            "simulation.conf";
     
     static {
         Locale.setDefault(new Locale("en", "US"));
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Stockholm"));
         Config mainConfig = ConfigFactory.parseFile(new File(configFile));
-        System.setProperty("log4j.configurationFile", "resources/config/log4j2.xml");
+        System.setProperty("log4j.configurationFile", "resources" + File.separator + 
+                                            "config" + File.separator + 
+                                            "log4j2.xml");
         System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
     }
 
@@ -54,11 +58,15 @@ public class MultiThreadSimulator {
         try {
             // verifying if all the files are in place
             // configuration file
-            mainConfig = ConfigFactory.parseFile(new File("resources/config/simulation.conf"));
+            mainConfig = ConfigFactory.parseFile(new File("resources" + File.separator + 
+                                            "config" + File.separator + 
+                                            "simulation.conf"));
             mainConfig.getInt("simulation.seed");
             
             // topology file
-            String path = "resources/topologies/" + mainConfig.getString("simulation.topology");
+            String path = "resources" + File.separator + 
+                                            "topologies" + File.separator + 
+                                            mainConfig.getString("simulation.topology");
             FileAgent.readFile(path);
         }
         catch (Exception e) {
@@ -70,7 +78,9 @@ public class MultiThreadSimulator {
         
         try {
             // topology file
-            String path = "resources/topologies/" + mainConfig.getString("simulation.topology");
+            String path = "resources" + File.separator + 
+                                            "topologies" + File.separator + 
+                                            mainConfig.getString("simulation.topology");
             FileAgent.readFile(path);
         }
         catch (Exception e) {
@@ -96,7 +106,7 @@ public class MultiThreadSimulator {
                 String dateTime = dtf.format(LocalDateTime.now());
                 
                 // creating folder and copying configuration files
-                mainConf.setBaseFolder(mainConf.getBaseFolder() + "/" + dateTime + "/");
+                mainConf.setBaseFolder(mainConf.getBaseFolder() + File.separator + dateTime + File.separator);
                 new File(mainConf.getBaseFolder()).mkdirs();
                 
                 System.setProperty("logFileName", mainConf.getBaseFolder() + mainConfig.getString("simulation.suffix"));
@@ -125,7 +135,7 @@ public class MultiThreadSimulator {
                     Files.copy(Paths.get(base), Paths.get(mainConf.getBaseFolder() + "java-simulator.jar"));
                 }
                 else {
-                    FileAgent.copyFolder(Paths.get(base), Paths.get(mainConf.getBaseFolder() + "java-simulator/"));
+                    FileAgent.copyFolder(Paths.get(base), Paths.get(mainConf.getBaseFolder() + "java-simulator" + File.separator));
                 }
                 
                 FileAgent.init(mainConf);
@@ -159,18 +169,24 @@ public class MultiThreadSimulator {
                 
                 //	listInstances.add(service.submit(new Simulator(mainConf)));
                 //	listInstances.add(service.submit(new Simulator(conf2)));
-                for (int i = 0 ; i < listInstances.size() ; i++)
-                    try {
-                        if (listInstances.get(i).get() == true) logger.info(i + " done!"); else logger.info(i + " not done!");
-                    } catch (Exception e) {
-                        logger.error("Bad Exception, full stack following:", e);
-                        e.printStackTrace();
-                    }
+                
+                // watching the thread pool and plotting results during the simulation
+                while (true) {
+                    // are all the jobs done?
+                    if (!listInstances.stream().filter(i -> !i.isDone()).findAny().isPresent())
+                        break;
+                    Thread.sleep(1000);
+                    /**
+                     * TODO
+                     * make a configurable parameter out of the plot_every
+                     */
+                    Plot.saveDuring(mainConf);
+                }
                 
                 service.shutdown();
                 logger.info("Finishing simulation at " + Configuration.getFormatter().format(LocalDateTime.now()));
                 logger.info("Generating charts ...");
-                Plot.save(mainConf);
+                Plot.saveFinal(mainConf);
                 logger.info("All done :)");
             } catch (Exception ex) {
                 java.util.logging.Logger.getLogger(MultiThreadSimulator.class.getName()).log(Level.SEVERE, null, ex);

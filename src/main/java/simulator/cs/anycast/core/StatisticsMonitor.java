@@ -35,7 +35,8 @@ public class StatisticsMonitor {
     
     public static final String[] headersAverageFile = new String[]{
         "policy", "load", "blocking", "avgLinkUtil", "avgProcUtil", "avgStoUtil", 
-        "avgHopCount", "avgPathWeight", "simTime", "totHoldTime", "avgHoldTime"
+        "avgHopCount", "avgPathWeight", "simTime", "totHoldTime", "avgHoldTime",
+        "blockConfInt"
     };
 
     public StatisticsMonitor(Configuration configuration) {
