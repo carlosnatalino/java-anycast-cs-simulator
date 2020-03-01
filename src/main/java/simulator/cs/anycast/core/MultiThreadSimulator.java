@@ -18,6 +18,7 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import simulator.cs.anycast.plot.Plot;
 import simulator.cs.anycast.utils.SimulatorThreadFactory;
 
 /**
@@ -118,6 +119,8 @@ public class MultiThreadSimulator {
                 
                 // saves the current version used within the folder
                 String base = MultiThreadSimulator.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+                boolean IS_WINDOWS = System.getProperty( "os.name" ).contains( "indow" );
+                base = (IS_WINDOWS && base.startsWith("/")) ? base.substring(1) : base;
                 if (base.endsWith(".jar")) {
                     Files.copy(Paths.get(base), Paths.get(mainConf.getBaseFolder() + "java-simulator.jar"));
                 }
@@ -166,6 +169,8 @@ public class MultiThreadSimulator {
                 
                 service.shutdown();
                 logger.info("Finishing simulation at " + Configuration.getFormatter().format(LocalDateTime.now()));
+                logger.info("Generating charts ...");
+                Plot.save(mainConf);
                 logger.info("All done :)");
             } catch (Exception ex) {
                 java.util.logging.Logger.getLogger(MultiThreadSimulator.class.getName()).log(Level.SEVERE, null, ex);
