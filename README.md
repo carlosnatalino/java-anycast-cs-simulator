@@ -123,6 +123,6 @@ BibTeX entry:
     }
 ~~~~
 
-### Best practices
+### Best practices in discrete-event simulation
 
-<iframe src="//www.slideshare.net/slideshow/embed_code/key/G7tGr2seUdKwu5" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="//www.slideshare.net/CarlosNatalinoSilva/discreteevent-simulation-best-practices-and-implementation-details-in-python-and-java-229472977" title="Discrete-event simulation: best practices and implementation details in Python and Java" target="_blank">Discrete-event simulation: best practices and implementation details in Python and Java</a> </strong> from <strong><a href="https://www.slideshare.net/CarlosNatalinoSilva" target="_blank">Carlos Natalino da Silva</a></strong> </div>
+A set of slides is available [here](https://www.slideshare.net/CarlosNatalinoSilva/discreteevent-simulation-best-practices-and-implementation-details-in-python-and-java-229472977).
