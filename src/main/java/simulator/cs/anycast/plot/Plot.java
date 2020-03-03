@@ -227,11 +227,7 @@ public class Plot {
             Configuration mainConf = FileAgent.getConfiguration(mainConfig); // reading the configuration file
 
             File[] directories = new File(mainConf.getBaseFolder()).listFiles(File::isDirectory);
-            String lastDir = ""; // get latest folder created
-            for (File f : directories) {
-                System.out.println(f);
-                lastDir = f.getPath();
-            }
+            String lastDir = directories[directories.length - 1].getPath(); // get latest folder created
             mainConf.setBaseFolder(lastDir + File.separator);
             Plot.saveDuring(mainConf);
             Plot.saveFinal(mainConf);
