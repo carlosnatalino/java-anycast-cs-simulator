@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -102,8 +104,8 @@ public class MultiThreadSimulator {
                 
                 Configuration mainConf = FileAgent.getConfiguration(mainConfig); // reading the configuration file
                 
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss.SSS");
-                String dateTime = dtf.format(LocalDateTime.now());
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss.SSS'UTC'");
+                String dateTime = dtf.format(OffsetDateTime.now(ZoneOffset.UTC));
                 
                 // creating folder and copying configuration files
                 mainConf.setBaseFolder(mainConf.getBaseFolder() + File.separator + dateTime + File.separator);
