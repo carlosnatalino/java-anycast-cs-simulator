@@ -127,7 +127,7 @@ public class Plot {
                             .filter(s -> s.trim().length() > 0)
                             .mapToDouble(Double::parseDouble)
                             .average();
-                    if (optAvg.isEmpty())
+                    if (!optAvg.isPresent())
                         lineValue += FileAgent.columnSeparator + 0.0;
                     else
                         lineValue += FileAgent.columnSeparator + optAvg.getAsDouble();
