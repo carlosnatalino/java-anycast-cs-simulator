@@ -2,6 +2,7 @@ package simulator.cs.anycast.events;
 
 import simulator.cs.anycast.core.Configuration;
 import simulator.cs.anycast.core.Simulator;
+import simulator.cs.anycast.components.Connection;
 import simulator.cs.anycast.utils.SimulatorThread;
 
 /**
@@ -22,7 +23,7 @@ public abstract class ActiveProcess {
      * Method called by the simulator event processor when processing this event.
      * @param event is the event object for the current event
      */
-    public abstract void activity(Event event);
+    public abstract void activity(Event<Connection> event);
 
     public double getTime() {
 	return time;

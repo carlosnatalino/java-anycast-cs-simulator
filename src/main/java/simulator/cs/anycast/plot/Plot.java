@@ -41,7 +41,6 @@ public class Plot {
     private static String dir;
     private static List<String> dataFinal;
     private static List<String> dataDuring;
-    private static Object absentValue = 0.0;
 
     private static final double FIG_SIZE_X = 8.0;
     private static final double FIG_SIZE_Y = 4.0;
