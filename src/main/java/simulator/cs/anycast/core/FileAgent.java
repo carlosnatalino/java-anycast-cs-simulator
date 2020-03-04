@@ -44,10 +44,11 @@ public class FileAgent {
     // hash map that saves all the files already loaded by the simulator
     // to avoid reading the same file multiple times.
     private static HashMap<String, ArrayList<String>> readFiles;
-    private static String configFileName = "config/exp.txt";
+    private static String configFileName = "config" + File.separator + 
+                                            "exp.txt";
     public static DecimalFormat format;
     public static DecimalFormat timeFormat;
-    private static final String columnSeparator = ",";
+    public static final String columnSeparator = ",";
     private static final String lineSeparator = "\n";
     
     static {
@@ -63,8 +64,10 @@ public class FileAgent {
         try {
             
             String header = "";
-            for (String h : StatisticsMonitor.headersExperimentFile) {
-                header += h + columnSeparator;
+            for (int i = 0 ; i < StatisticsMonitor.headersExperimentFile.length ; i++) {
+                header += StatisticsMonitor.headersExperimentFile[i];
+                if (i < StatisticsMonitor.headersExperimentFile.length - 1)
+                    header += columnSeparator;
             }
             header += lineSeparator;
             
@@ -72,8 +75,10 @@ public class FileAgent {
             Files.write(path, header.getBytes(), StandardOpenOption.CREATE_NEW);
             
             header = "";
-            for (String h : StatisticsMonitor.headersAverageFile) {
-                header += h + columnSeparator;
+            for (int i = 0 ; i < StatisticsMonitor.headersAverageFile.length ; i++) {
+                header += StatisticsMonitor.headersAverageFile[i];
+                if (i < StatisticsMonitor.headersAverageFile.length - 1)
+                    header += columnSeparator;
             }
             header += lineSeparator;
             
@@ -164,7 +169,9 @@ public class FileAgent {
     }
     
     private static Topology readTopology(String topologyName, Configuration configuration) throws ParserConfigurationException, SAXException, IOException {
-        String path = "resources/topologies/" + topologyName;
+        String path = "resources" + File.separator + 
+                                            "topologies" + File.separator + 
+                                            topologyName;
         Topology topology = null;
         
         if (topologyName.endsWith(".txt")) {

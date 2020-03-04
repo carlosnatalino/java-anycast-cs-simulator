@@ -123,4 +123,6 @@ BibTeX entry:
     }
 ~~~~
 
+### Best practices in discrete-event simulation
 
+A set of slides is available [here](https://www.slideshare.net/CarlosNatalinoSilva/discreteevent-simulation-best-practices-and-implementation-details-in-python-and-java-229472977).
