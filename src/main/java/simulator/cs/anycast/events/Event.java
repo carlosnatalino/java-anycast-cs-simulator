@@ -1,4 +1,5 @@
 package simulator.cs.anycast.events;
+import simulator.cs.anycast.components.Connection;
 
 /**
  *
@@ -8,7 +9,7 @@ package simulator.cs.anycast.events;
  * 
  * @author carlosnatalino
  */
-public class Event<E> implements Comparable<Event>{
+public class Event<E> implements Comparable<Event<Connection>>{
     
     private double time;
     private E context;
@@ -64,7 +65,7 @@ public class Event<E> implements Comparable<Event>{
      * @return 
      */
     @Override
-    public int compareTo(Event o) {
+    public int compareTo(Event<Connection> o) {
         if (time < o.getTime()) // if this event happens before the other
             return -1;
         else

@@ -41,7 +41,6 @@ public class Plot {
     private static String dir;
     private static List<String> dataFinal;
     private static List<String> dataDuring;
-    private static Object absentValue = 0.0;
 
     private static final double FIG_SIZE_X = 8.0;
     private static final double FIG_SIZE_Y = 4.0;
@@ -127,7 +126,7 @@ public class Plot {
                             .filter(s -> s.trim().length() > 0)
                             .mapToDouble(Double::parseDouble)
                             .average();
-                    if (optAvg.isEmpty())
+                    if (!optAvg.isPresent())
                         lineValue += FileAgent.columnSeparator + 0.0;
                     else
                         lineValue += FileAgent.columnSeparator + optAvg.getAsDouble();

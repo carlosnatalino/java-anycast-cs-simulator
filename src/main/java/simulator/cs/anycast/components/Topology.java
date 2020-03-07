@@ -23,7 +23,6 @@ public class Topology {
     private final Link links[];
     private ArrayList<Node> datacenters;
     private final Node nodes[];
-    private final boolean topology[][];
     private Link[][] linksVector;
     private HashMap<String, Node> nodeMap;
     private int type;
@@ -35,7 +34,6 @@ public class Topology {
         this.configuration = configuration;
 	nodes = new Node[nNodes];
         nodeMap = new HashMap<>();
-	topology = new boolean[nNodes][nNodes];
 	linksVector = new Link[nNodes][nNodes];
 	links = new Link[nLinks];
 	datacenters = new ArrayList<Node>();

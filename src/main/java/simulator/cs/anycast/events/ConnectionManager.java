@@ -19,7 +19,6 @@ public class ConnectionManager extends ActiveProcess {
     
     private static final int ARRIVAL = 1;
     private static final int RELEASE = 2;
-    private Connection temp;
     
     // objects to invoke restore method dynamically
     private ProvisioningPolicy policyObj;
@@ -31,6 +30,7 @@ public class ConnectionManager extends ActiveProcess {
 	new ConnectionManager();
     }
 
+    @SuppressWarnings("unchecked")
     private ConnectionManager() {
 	super();
         logger = LogManager.getLogger("[" + configuration.getId() + "] ConnectionManager");
@@ -41,7 +41,6 @@ public class ConnectionManager extends ActiveProcess {
             policyObj = strategyCls.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             logger.fatal("ConnectionManager:ConnectionManager: something bad is about to happen!!!! ", e);
-//            System.exit(10);
         }
         
     }
@@ -53,18 +52,18 @@ public class ConnectionManager extends ActiveProcess {
     private void scheduleNextArrival() {
 	double nextConnectionArrivalTime = getSimulator().getCurrentTime() + 
                 configuration.getRandPoisson(configuration.getMeanConnectionInterArrivalTime());
-	getSimulator().addEvent(new Event(nextConnectionArrivalTime, this, ConnectionManager.ARRIVAL));
+	getSimulator().addEvent(new Event<Connection>(nextConnectionArrivalTime, this, ConnectionManager.ARRIVAL));
     }
 
     @Override
-    public void activity(Event event) {
+    public void activity(Event<Connection> event) {
 	if (event.getEventType() == ARRIVAL)
 	    processArrival(event);
 	else if (event.getEventType() == RELEASE)
 	    processRelease(event);
     }
     
-    private void processArrival(Event event) {
+    private void processArrival(Event<Connection> event) {
 	double holdingTime = configuration.getExponential() * configuration.getMeanConnectionHoldingTime();
         
         int source = -1;
@@ -78,7 +77,6 @@ public class ConnectionManager extends ActiveProcess {
         int processing = 0;
         
         processing = configuration.getProcessingUnitValues()[getProcessingUnits()];
-//        int processing = 1; // TODO For testing purposes only. Original code: int processing = configuration.getProcessingUnitValues()[getProcessingUnits()];
         
 	Connection newConnection = new Connection(++arrivedConnections, source, holdingTime, configuration);
         newConnection.setRequiredSUs(storage);
@@ -112,7 +110,7 @@ public class ConnectionManager extends ActiveProcess {
 	}
     }
     
-    private void processRelease(Event event) {
+    private void processRelease(Event<Connection> event) {
         Connection connection = (Connection) event.getContext();
 
         try {

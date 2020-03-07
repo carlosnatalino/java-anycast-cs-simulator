@@ -24,11 +24,10 @@ public class Simulator implements Callable<Boolean> {
     
     private Configuration configuration;
     private StatisticsMonitor statisticsMonitor;
-    private PriorityQueue<Event> events;
+    private PriorityQueue<Event<Connection>> events;
     private List<Connection> connections; // all connections handled
     private List<Connection> activeConnections; // only the ones currently active
     private double currentTime = 0.0;
-    private double endTime = 0.0;
     private boolean log = false;
     private Logger logger;
 
@@ -40,7 +39,7 @@ public class Simulator implements Callable<Boolean> {
 	configuration.setSimulator(this);
     }
     
-    public void addEvent(Event event) {
+    public void addEvent(Event<Connection> event) {
         events.add(event);
     }
 
@@ -82,7 +81,7 @@ public class Simulator implements Callable<Boolean> {
 	    configuration.setExperiment(experiment);
 	    currentTime = 0.0;
 	    ConnectionManager.init();
-	    Event evt;
+	    Event<Connection> evt;
             try { // capturing exceptions thrown by the simulation loop
                 while ((evt = events.poll()) != null) {
                     currentTime = evt.getTime();
@@ -93,7 +92,6 @@ public class Simulator implements Callable<Boolean> {
                 logger.fatal("Simulation " + configuration.getId() + " triggered an exception during event loop: " + e.getLocalizedMessage());
                 continue;
             }
-	    endTime = currentTime;
             duration = Duration.between(lt, LocalDateTime.now()).getSeconds();
             totalDuration += duration;
 	    ArrayList<Double> resultExp = statisticsMonitor.computeStatistics(duration); // compute statistics for each experiment

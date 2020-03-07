@@ -63,28 +63,19 @@ public class RoutesContainer {
     
     private OpticalRoute[] computeKSPRoutes(int src, int dst) {
         Topology topology = configuration.getTopology();
-	List<GraphPath> kpaths;
+	List<GraphPath<Node, Link>> kpaths;
 	OpticalRoute[] ors = new OpticalRoute[k];
-        YenKShortestPath ksp = new YenKShortestPath(grapht);
+        YenKShortestPath<Node, Link> ksp = new YenKShortestPath<Node, Link>(grapht);
         kpaths = ksp.getPaths(topology.getNodes()[src], topology.getNodes()[dst], k);
-//	System.out.println(src + " -> " + dst);
 	Node nSrc, nDst;
 	int ipath = 0;
-	int temp = 0, previous;
-	for (GraphPath gp : kpaths) {
+	for (GraphPath<Node, Link> gp : kpaths) {
 	    OpticalRoute or = new OpticalRoute(src, dst);
-            temp = 0;
-            previous = src;
 	    for (Object edge : gp.getEdgeList()) {
 		nSrc = (Node) grapht.getEdgeSource((Link) edge);
 		nDst = (Node) grapht.getEdgeTarget((Link) edge);
 		or.addLink(topology.getLinksVector()[nSrc.getId()][nDst.getId()]);
-                
-		temp ++;
 	    }
-	    temp = 0;
-//            configuration.debug(or.toString());
-//	    System.out.println(or);
             
             ors[ipath] = or;
             ipath ++;
@@ -109,13 +100,12 @@ public class RoutesContainer {
         int counter[][] = new int[configuration.getTopology().getNodes().length][20];
         int greater = Integer.MIN_VALUE;
         int totalPaths = 0;
-        double nDCs = 0, nNodes = 0;
+        double nNodes = 0;
         OpticalRoute[] routes;
         for (Node dc : configuration.getTopology().getNodes()) {
             avgPaths = 0.0;
             npaths = 0;
             if (dc.isDatacenter()) {
-                nDCs++;
                 for (Node node : configuration.getTopology().getNodes()) {
                     if (!node.isDatacenter()) {
                         nNodes++;

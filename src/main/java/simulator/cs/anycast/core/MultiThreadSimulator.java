@@ -45,7 +45,6 @@ public class MultiThreadSimulator {
     static {
         Locale.setDefault(new Locale("en", "US"));
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Stockholm"));
-        Config mainConfig = ConfigFactory.parseFile(new File(configFile));
         System.setProperty("log4j.configurationFile", "resources" + File.separator + 
                                             "config" + File.separator + 
                                             "log4j2.xml");
