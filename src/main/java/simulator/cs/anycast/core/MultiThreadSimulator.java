@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -145,7 +146,8 @@ public class MultiThreadSimulator {
                 ExecutorService service = Executors.newFixedThreadPool(mainConf.getNumberThreads(), new SimulatorThreadFactory());
                 
                 String baseName;
-                logger.debug("Starting simulation at " + Configuration.getFormatter().format(LocalDateTime.now()));
+                LocalDateTime startTime = LocalDateTime.now();
+                logger.debug("Starting simulation at " + Configuration.getFormatter().format(startTime));
                 
                 for (int s = 0; s < mainConf.getPolicies().length; s++) {
 
@@ -186,6 +188,8 @@ public class MultiThreadSimulator {
                 
                 service.shutdown();
                 logger.info("Finishing simulation at " + Configuration.getFormatter().format(LocalDateTime.now()));
+                double duration = Duration.between(startTime, LocalDateTime.now()).getSeconds();
+                logger.info("It took " + duration + " seconds to run the simulation");
                 logger.info("Generating charts ...");
                 Plot.saveFinal(mainConf);
                 logger.info("All done :)");

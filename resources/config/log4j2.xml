@@ -22,7 +22,7 @@
             <AppenderRef ref="Console-Appender"/>
             
             <!-- file appender writes the log to file, appropriate to server -->
-            <!--<AppenderRef ref="File-Appender"/>-->
+            <AppenderRef ref="File-Appender"/>
         </Root>
     </Loggers>
 </Configuration>
